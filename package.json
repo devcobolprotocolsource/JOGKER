@@ -1,0 +1,48 @@
+{
+  "name": "jokger",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "workspaces": [
+    "apps/web"
+  ],
+  "scripts": {
+    "dev": "npm --workspace @jokger/web run dev",
+    "build": "npm --workspace @jokger/web run build",
+    "lint": "eslint .",
+    "format:check": "prettier --check .",
+    "format": "prettier --write .",
+    "typecheck": "npm --workspace @jokger/web run typecheck",
+    "test": "npm --workspace @jokger/web run test",
+    "test:coverage": "npm --workspace @jokger/web run test:coverage",
+    "e2e": "playwright test",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.8.0",
+    "@commitlint/config-conventional": "^19.8.0",
+    "@eslint/js": "^9.23.0",
+    "@playwright/test": "^1.51.1",
+    "@types/node": "^22.13.10",
+    "eslint": "^9.23.0",
+    "eslint-plugin-solid": "^0.14.5",
+    "globals": "^16.0.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.0",
+    "prettier": "^3.5.3",
+    "supabase": "^2.20.12",
+    "typescript": "^5.8.2",
+    "typescript-eslint": "^8.27.0",
+    "vitest": "^3.0.8"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,json,css,md}": [
+      "prettier --write",
+      "eslint --fix"
+    ]
+  },
+  "engines": {
+    "node": ">=20 <21",
+    "npm": ">=10"
+  }
+}
