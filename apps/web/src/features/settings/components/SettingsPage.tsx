@@ -101,7 +101,7 @@ export function SettingsPage() {
     setLogoUploading(false);
   }
 
-  const currentSettings = settings();
+  const currentSettings = settings;
 
   return (
     <div class="page-container">
@@ -142,7 +142,7 @@ export function SettingsPage() {
                 <Input
                   name="store_name"
                   label={strings.settings.storeName}
-                  value={currentSettings?.store_name ?? ''}
+                  value={currentSettings()?.store_name ?? ''}
                   required
                   placeholder="Nama toko"
                 />
@@ -151,7 +151,7 @@ export function SettingsPage() {
                 <Input
                   name="address"
                   label={strings.settings.address}
-                  value={currentSettings?.address ?? ''}
+                  value={currentSettings()?.address ?? ''}
                   placeholder="Alamat toko"
                 />
               </div>
@@ -159,7 +159,7 @@ export function SettingsPage() {
                 <Input
                   name="phone"
                   label={strings.settings.phone}
-                  value={currentSettings?.phone ?? ''}
+                  value={currentSettings()?.phone ?? ''}
                   placeholder="Nomor telepon"
                 />
               </div>
@@ -169,7 +169,7 @@ export function SettingsPage() {
                     name="tax_percent"
                     label={strings.settings.taxPercent}
                     type="number"
-                    value={currentSettings?.tax_percent ?? 0}
+                    value={currentSettings()?.tax_percent ?? 0}
                     step="0.01"
                     max={100}
                   />
@@ -179,7 +179,7 @@ export function SettingsPage() {
                     name="service_percent"
                     label={strings.settings.servicePercent}
                     type="number"
-                    value={currentSettings?.service_percent ?? 0}
+                    value={currentSettings()?.service_percent ?? 0}
                     step="0.01"
                     max={100}
                   />
@@ -190,14 +190,14 @@ export function SettingsPage() {
                   name="rounding_rule"
                   label={strings.settings.roundingRule}
                   options={[...roundingRuleOptions]}
-                  value={currentSettings?.rounding_rule ?? 'none'}
+                  value={currentSettings()?.rounding_rule ?? 'none'}
                 />
               </div>
               <div class="form-group">
                 <Input
                   name="receipt_header"
                   label={strings.settings.receiptHeader}
-                  value={currentSettings?.receipt_header ?? ''}
+                  value={currentSettings()?.receipt_header ?? ''}
                   placeholder="Header struk (opsional)"
                 />
               </div>
@@ -205,7 +205,7 @@ export function SettingsPage() {
                 <Input
                   name="receipt_footer"
                   label={strings.settings.receiptFooter}
-                  value={currentSettings?.receipt_footer ?? ''}
+                  value={currentSettings()?.receipt_footer ?? ''}
                   placeholder="Footer struk (opsional)"
                 />
               </div>
@@ -215,7 +215,7 @@ export function SettingsPage() {
                     name="paper_width_mm"
                     label={strings.settings.paperWidth}
                     options={[...paperWidthOptions]}
-                    value={String(currentSettings?.paper_width_mm ?? 58)}
+                    value={String(currentSettings()?.paper_width_mm ?? 58)}
                   />
                 </div>
               </div>
@@ -235,7 +235,7 @@ export function SettingsPage() {
                     name="operating_hours_start"
                     label={strings.settings.openTime}
                     type="time"
-                    value={currentSettings?.operating_hours_start ?? ''}
+                    value={currentSettings()?.operating_hours_start ?? ''}
                   />
                 </div>
                 <div class="form-group">
@@ -243,7 +243,7 @@ export function SettingsPage() {
                     name="operating_hours_end"
                     label={strings.settings.closeTime}
                     type="time"
-                    value={currentSettings?.operating_hours_end ?? ''}
+                    value={currentSettings()?.operating_hours_end ?? ''}
                   />
                 </div>
               </div>
@@ -275,19 +275,19 @@ export function SettingsPage() {
               <div class="branding-preview">
                 <div
                   class="preview-header"
-                  style={{ 'background-color': currentSettings?.primary_color }}
+                  style={{ 'background-color': currentSettings()?.primary_color }}
                 >
                   <div
                     class="preview-logo"
                     style={{
-                      'background-image': currentSettings?.logo_path
-                        ? `url(${currentSettings.logo_path})`
+                      'background-image': currentSettings()?.logo_path
+                        ? `url(${currentSettings()!.logo_path})`
                         : 'none',
                     }}
                   />
                   <div class="preview-info">
-                    <h3>{currentSettings?.store_name ?? strings.appName}</h3>
-                    <p>{currentSettings?.address ?? ''}</p>
+                    <h3>{currentSettings()?.store_name ?? strings.appName}</h3>
+                    <p>{currentSettings()?.address ?? ''}</p>
                   </div>
                 </div>
                 <div class="preview-buttons">
@@ -306,7 +306,7 @@ export function SettingsPage() {
                     type="color"
                     name="primary_color"
                     aria-label={strings.settings.primaryColor}
-                    value={currentSettings?.primary_color ?? '#6F4E37'}
+                    value={currentSettings()?.primary_color ?? '#6F4E37'}
                     onChange={(e) => {
                       const input = e.target as HTMLInputElement;
                       (e.target as HTMLInputElement).form?.requestSubmit?.();
@@ -326,14 +326,14 @@ export function SettingsPage() {
                     name="primary_color"
                     label={strings.settings.primaryColor}
                     type="text"
-                    value={currentSettings?.primary_color ?? '#6F4E37'}
+                    value={currentSettings()?.primary_color ?? '#6F4E37'}
                     placeholder="#RRGGBB"
                     class="color-hex"
                   />
                 </div>
                 <ContrastCheck
-                  color1={currentSettings?.primary_color ?? '#6F4E37'}
-                  color2={currentSettings?.accent_color ?? '#F5E6D3'}
+                  color1={currentSettings()?.primary_color ?? '#6F4E37'}
+                  color2={currentSettings()?.accent_color ?? '#F5E6D3'}
                   textColor="white"
                 />
               </div>
@@ -344,7 +344,7 @@ export function SettingsPage() {
                     type="color"
                     name="accent_color"
                     aria-label={strings.settings.accentColor}
-                    value={currentSettings?.accent_color ?? '#F5E6D3'}
+                    value={currentSettings()?.accent_color ?? '#F5E6D3'}
                     onChange={(e) => {
                       const input = e.target as HTMLInputElement;
                       const form = input.form as HTMLFormElement;
@@ -363,14 +363,14 @@ export function SettingsPage() {
                     name="accent_color"
                     label={strings.settings.accentColor}
                     type="text"
-                    value={currentSettings?.accent_color ?? '#F5E6D3'}
+                    value={currentSettings()?.accent_color ?? '#F5E6D3'}
                     placeholder="#RRGGBB"
                     class="color-hex"
                   />
                 </div>
                 <ContrastCheck
-                  color1={currentSettings?.primary_color ?? '#6F4E37'}
-                  color2={currentSettings?.accent_color ?? '#F5E6D3'}
+                  color1={currentSettings()?.primary_color ?? '#6F4E37'}
+                  color2={currentSettings()?.accent_color ?? '#F5E6D3'}
                   textColor="black"
                 />
               </div>
@@ -380,16 +380,16 @@ export function SettingsPage() {
                   name="font_family"
                   label={strings.settings.fontFamily}
                   options={[...fontFamilyOptions]}
-                  value={currentSettings?.font_family ?? 'Inter'}
+                  value={currentSettings()?.font_family ?? 'Inter'}
                 />
               </div>
 
               <div class="form-group">
                 <label>{strings.settings.logo}</label>
                 <div class="logo-upload">
-                  <Show when={logoPreview() ?? currentSettings?.logo_path}>
+                  <Show when={logoPreview() ?? currentSettings()?.logo_path}>
                     <img
-                      src={logoPreview() ?? currentSettings?.logo_path ?? ''}
+                      src={logoPreview() ?? currentSettings()?.logo_path ?? ''}
                       alt="Logo"
                       class="logo-preview"
                     />
