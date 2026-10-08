@@ -10,7 +10,10 @@ import { initializeConnection, online } from '../shared/stores/connection';
 import { refreshShift, shiftState } from '../shared/stores/shift';
 import { refreshSettings, settingsState } from '../shared/stores/settings';
 import { ProtectedPage } from './guards/ProtectedPages';
-import { ForbiddenPage } from '../features/auth';
+import { ForbiddenPage } from '../features/auth/guards/ForbiddenPage';
+import { signOut } from '../shared/stores/session';
+import { ThemeToggle } from '../shared/ui/ThemeToggle';
+import { initializeTheme } from '../shared/theme/theme';
 
 const LoginPage = lazy(() =>
   import('../features/auth/components/LoginPage').then((module) => ({
@@ -26,6 +29,7 @@ const PosPage = lazy(() =>
 export function App() {
   let disposeConnection: (() => void) | undefined;
   onMount(() => {
+    initializeTheme();
     disposeConnection = initializeConnection();
     void initializeSession();
   });
@@ -134,14 +138,11 @@ function ApplicationShell(props: { children: import('solid-js').JSX.Element }) {
         </div>
         <div class="profile-menu">
           <span>{sessionState.profile?.full_name}</span>
+          <ThemeToggle />
           <button
             class="signout-button"
             type="button"
-            onClick={() =>
-              void import('../shared/stores/session')
-                .then(({ signOut }) => signOut())
-                .then(() => navigate('/login'))
-            }
+            onClick={() => void signOut().then(() => navigate('/login'))}
           >
             {strings.common.signOut}
           </button>

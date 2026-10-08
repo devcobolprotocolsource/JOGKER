@@ -9,6 +9,12 @@ import {
 import { canTransitionOrder } from './order-status';
 import { buildReceipt } from './receipt';
 import { validateVoucher, type VoucherInput } from './voucher';
+import {
+  contrastRatio,
+  getContrastText,
+  hasWcagAAContrast,
+  parseHexColor,
+} from './color';
 
 describe('formatters', () => {
   it('formats integer rupiah and Indonesian numbers', () => {
@@ -96,6 +102,23 @@ describe('order transitions and AppError', () => {
       code: 'UNKNOWN',
     });
     expect(mapAppError(null).message).toMatch(/Terjadi kesalahan/);
+  });
+});
+
+describe('color contrast', () => {
+  it('parses short and long hex colors and rejects malformed values', () => {
+    expect(parseHexColor('#abc')).toEqual({ red: 170, green: 187, blue: 204 });
+    expect(parseHexColor('6F4E37')).toEqual({ red: 111, green: 78, blue: 55 });
+    expect(parseHexColor('coffee')).toBeNull();
+  });
+
+  it('computes WCAG contrast and chooses the strongest readable text color', () => {
+    expect(contrastRatio('#ffffff', '#000000')).toBe(21);
+    expect(hasWcagAAContrast('#ffffff', '#6F4E37')).toBe(true);
+    expect(hasWcagAAContrast('#777777', '#888888')).toBe(false);
+    expect(getContrastText('#6F4E37')).toBe('#FFFFFF');
+    expect(getContrastText('#F5E6D3')).toBe('#1B1410');
+    expect(contrastRatio('invalid', '#fff')).toBeNull();
   });
 });
 

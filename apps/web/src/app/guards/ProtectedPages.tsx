@@ -1,6 +1,7 @@
 import type { JSX } from 'solid-js';
 import type { Role } from '../../shared/stores/session';
-import { RequireAuth, RequireRole } from '../../features/auth';
+import { RequireAuth } from '../../features/auth/guards/RequireAuth';
+import { RequireRole } from '../../features/auth/guards/RequireRole';
 
 export function ProtectedPage(props: {
   allow?: Role[];
