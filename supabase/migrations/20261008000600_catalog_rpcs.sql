@@ -199,7 +199,7 @@ begin
   if not found then raise exception using errcode = 'P0001', message = 'VOUCHER_NOT_FOUND'; end if;
   insert into audit_logs(actor_id, action, entity, entity_id, payload)
   values (auth.uid(), case when p_is_active then 'voucher.activate' else 'voucher.deactivate' end,
-    'voucher', p_voucher_id::text);
+    'voucher', p_voucher_id::text, jsonb_build_object('is_active', p_is_active));
   return result;
 end;
 $$;
