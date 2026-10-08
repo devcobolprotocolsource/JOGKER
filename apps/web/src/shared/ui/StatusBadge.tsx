@@ -2,7 +2,7 @@ import { Check, CircleDot, Flame, X, Bell, Clock3 } from 'lucide-solid';
 import { Dynamic } from 'solid-js/web';
 import { strings } from '../strings';
 
-type Status =
+export type Status =
   | 'new'
   | 'processing'
   | 'ready'

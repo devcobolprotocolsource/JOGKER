@@ -1,6 +1,6 @@
-import { getSupabaseClient } from '../../../../shared/api/supabase';
-import { capture, type Result } from '../../../../shared/api/result';
-import type { Database } from '../../../../shared/types/database';
+import { getSupabaseClient } from '../../../shared/api/supabase';
+import { capture, type Result } from '../../../shared/api/result';
+import type { Database } from '../../../shared/types/database';
 
 export interface TransactionFilter {
   startDate?: string;
@@ -31,6 +31,7 @@ export interface TransactionRow {
   created_by: string;
   full_name: string | null;
   items_summary: string;
+  payments?: Array<{ method: string }> | null;
 }
 
 export async function loadTransactions(
@@ -167,13 +168,14 @@ export async function loadTransactionDetail(orderId: string): Promise<Result<Tra
 
 export async function exportTransactionsCSV(filter: TransactionFilter): Promise<Result<string>> {
   return capture(async () => {
-    const { rows } = await loadTransactions({ ...filter, page: 1, pageSize: 10000 });
-    if (!rows) throw new Error('Failed to load transactions');
+    const result = await loadTransactions({ ...filter, page: 1, pageSize: 10000 });
+    if (!result.ok) throw new Error(result.error.message);
+    const rows = result.data.rows;
 
     const headers = ['Nomor Pesanan', 'Tanggal', 'Tipe', 'Status', 'Total', 'Metode', 'Kasir'];
     const lines = [headers.join(',')];
 
-    for (const row of rows.data) {
+    for (const row of rows) {
       const date = new Date(row.created_at).toLocaleString('id-ID', {
         timeZone: 'Asia/Jakarta',
         year: 'numeric',

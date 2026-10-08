@@ -26,6 +26,7 @@ const [historyState, setHistoryState] = createStore<HistoryState>({
   error: null,
 });
 
+export { historyState };
 export function getHistoryState() {
   return historyState;
 }

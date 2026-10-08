@@ -26,5 +26,7 @@ export { Switch } from './Switch';
 export { Table } from './Table';
 export { Tabs } from './Tabs';
 export { Textarea } from './Textarea';
+export { TextButton } from './TextButton';
 export { ThemeToggle } from './ThemeToggle';
 export { Toast } from './Toast';
+export { Toolbar } from './Toolbar';

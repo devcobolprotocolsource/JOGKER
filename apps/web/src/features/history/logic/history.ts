@@ -1,5 +1,5 @@
-import { createResource, onCleanup } from 'solid-js';
-import { loadTransactions, loadTransactionSummary, exportTransactionsCSV } from './api/history';
+import { createResource } from 'solid-js';
+import { loadTransactions, loadTransactionSummary, exportTransactionsCSV } from '../api/history';
 import {
   setHistoryRows,
   setHistorySummary,
@@ -7,10 +7,14 @@ import {
   setHistorySummaryLoading,
   setHistoryError,
   historyState,
-} from './state/history';
+} from '../state/history';
+import type { TransactionRow, TransactionSummary, TransactionFilter } from '../api/history';
 
 export function createHistoryResource() {
-  const [transactions, { refetch: refetchTransactions }] = createResource(
+  const [transactions, { refetch: refetchTransactions }] = createResource<
+    { rows: TransactionRow[]; total: number },
+    TransactionFilter
+  >(
     () => historyState.filter,
     async (filter) => {
       setHistoryLoading(true);
@@ -27,7 +31,10 @@ export function createHistoryResource() {
     { initialValue: { rows: [], total: 0 } }
   );
 
-  const [summary, { refetch: refetchSummary }] = createResource(
+  const [summary, { refetch: refetchSummary }] = createResource<
+    TransactionSummary | null,
+    TransactionFilter
+  >(
     () => historyState.filter,
     async (filter) => {
       setHistorySummaryLoading(true);
@@ -39,11 +46,6 @@ export function createHistoryResource() {
     },
     { initialValue: null }
   );
-
-  onCleanup(() => {
-    transactions?.dispose?.();
-    summary?.dispose?.();
-  });
 
   return { transactions, refetchTransactions, summary, refetchSummary };
 }
