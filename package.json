@@ -12,7 +12,7 @@
     "lint": "eslint .",
     "format:check": "prettier --check .",
     "format": "prettier --write .",
-    "typecheck": "npm --workspace @jokger/web run typecheck",
+    "typecheck": "npm --workspace @jokger/web run typecheck && tsc --noEmit -p api/tsconfig.json",
     "test": "npm --workspace @jokger/web run test",
     "test:coverage": "npm --workspace @jokger/web run test:coverage",
     "e2e": "playwright test",
