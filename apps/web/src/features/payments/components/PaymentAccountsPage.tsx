@@ -30,6 +30,15 @@ import {
 import { paymentAccountSchema } from '../schemas/payment';
 import type { PaymentAccount } from '../api/payments';
 
+interface AccountForm {
+  method: 'transfer' | 'ewallet';
+  provider: string;
+  account_name: string;
+  account_no: string;
+  is_active: boolean;
+  sort_order: number;
+}
+
 export function PaymentAccountsPage() {
   const { accounts, refetch } = createPaymentAccountsResource();
   const [toast, setToast] = createSignal<{ type: 'success' | 'error'; message: string } | null>(
@@ -311,22 +320,17 @@ function AccountDialog(props: {
     account_name: string;
     account_no: string;
     is_active: boolean;
+    sort_order: number;
   } | null;
   onSubmit: (input: AccountForm) => void;
 }) {
-  interface AccountForm {
-    method: 'transfer' | 'ewallet';
-    provider: string;
-    account_name: string;
-    account_no: string;
-    is_active: boolean;
-  }
   const [form, setForm] = createSignal<AccountForm>({
     method: 'transfer',
     provider: '',
     account_name: '',
     account_no: '',
     is_active: true,
+    sort_order: 0,
   });
   const [errors, setErrors] = createSignal<Record<string, string>>({});
 
@@ -338,6 +342,7 @@ function AccountDialog(props: {
         account_name: props.account.account_name,
         account_no: props.account.account_no,
         is_active: props.account.is_active,
+        sort_order: props.account.sort_order,
       });
     } else {
       setForm({
@@ -346,6 +351,7 @@ function AccountDialog(props: {
         account_name: '',
         account_no: '',
         is_active: true,
+        sort_order: 0,
       });
     }
     setErrors({});
@@ -386,7 +392,9 @@ function AccountDialog(props: {
               { value: 'ewallet', label: 'E-Wallet' },
             ]}
             value={form().method}
-            onChange={(v) => handleChange('method', v)}
+            onChange={(event) =>
+              handleChange('method', event.currentTarget.value as AccountForm['method'])
+            }
             error={errors()['method']}
           />
         </div>

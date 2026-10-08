@@ -7,7 +7,7 @@ export function useDebounce<T>(source: () => T, delay: number): () => T {
     let timeout: ReturnType<typeof setTimeout>;
     const update = () => {
       timeout = setTimeout(() => {
-        setDebouncedValue(source());
+        setDebouncedValue(() => source());
       }, delay);
     };
     update();

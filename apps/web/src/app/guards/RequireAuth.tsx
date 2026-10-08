@@ -1,4 +1,5 @@
 import { createEffect, onMount } from 'solid-js';
+import { Show } from 'solid-js';
 import { useNavigate } from '@solidjs/router';
 import type { JSX } from 'solid-js';
 import { sessionState } from '../../shared/stores/session';
@@ -18,14 +19,15 @@ export function RequireAuth(props: { children: JSX.Element }) {
   });
 
   return (
-    <>
-      {sessionState.userId ? (
-        props.children
-      ) : (
+    <Show
+      when={sessionState.userId}
+      fallback={
         <div class="guard-loading" role="status" aria-live="polite">
           {strings.common.loading}
         </div>
-      )}
-    </>
+      }
+    >
+      {props.children}
+    </Show>
   );
 }

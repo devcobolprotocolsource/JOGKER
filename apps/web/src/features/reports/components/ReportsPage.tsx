@@ -252,7 +252,7 @@ export function ReportsPage() {
 
         <Show when={state.activeTab === 'summary'}>
           <ReportPanel
-            loading={summaryResource.loading}
+            loading={() => summaryResource.loading}
             data={summaryResource}
             render={(s) => (
               <div class="stats-grid">
@@ -293,7 +293,7 @@ export function ReportsPage() {
 
         <Show when={state.activeTab === 'daily'}>
           <ReportTable<DailyReportItem>
-            loading={dailyResource.loading}
+            loading={() => dailyResource.loading}
             rows={dailyResource}
             columns={[
               {
@@ -324,7 +324,7 @@ export function ReportsPage() {
 
         <Show when={state.activeTab === 'hourly'}>
           <ReportTable<HourlyReportItem>
-            loading={hourlyResource.loading}
+            loading={() => hourlyResource.loading}
             rows={hourlyResource}
             columns={[
               {
@@ -350,7 +350,7 @@ export function ReportsPage() {
 
         <Show when={state.activeTab === 'category'}>
           <ReportTable<CategoryReportItem>
-            loading={categoryResource.loading}
+            loading={() => categoryResource.loading}
             rows={categoryResource}
             columns={[
               { key: 'category_name', header: strings.reports.colCategory },
@@ -371,7 +371,7 @@ export function ReportsPage() {
 
         <Show when={state.activeTab === 'item'}>
           <ReportTable<ItemReportItem>
-            loading={itemResource.loading}
+            loading={() => itemResource.loading}
             rows={itemResource}
             columns={[
               { key: 'item_name', header: strings.reports.colItem },
@@ -393,7 +393,7 @@ export function ReportsPage() {
 
         <Show when={state.activeTab === 'method'}>
           <ReportTable<MethodReportItem>
-            loading={methodResource.loading}
+            loading={() => methodResource.loading}
             rows={methodResource}
             columns={[
               {
@@ -426,7 +426,7 @@ export function ReportsPage() {
 
         <Show when={state.activeTab === 'voucher'}>
           <ReportTable<VoucherReportItem>
-            loading={voucherResource.loading}
+            loading={() => voucherResource.loading}
             rows={voucherResource}
             columns={[
               { key: 'voucher_code', header: strings.reports.colVoucherCode, class: 'font-mono' },

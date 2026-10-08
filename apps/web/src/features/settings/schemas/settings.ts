@@ -9,7 +9,7 @@ export const settingsSchema = z.object({
   rounding_rule: z.enum(['none', 'up_100', 'nearest_100']).default('none'),
   receipt_header: z.string().optional(),
   receipt_footer: z.string().optional(),
-  paper_width_mm: z.enum([58, 80]).default(58),
+  paper_width_mm: z.union([z.literal(58), z.literal(80)]).default(58),
   require_payment_verification: z.boolean().default(true),
   operating_hours_start: z
     .string()

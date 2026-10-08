@@ -222,22 +222,21 @@ export function BrandingPage() {
 }
 
 function ContrastCheck(props: { color1: string; color2: string; textColor: string }) {
-  const ratio = getContrastRatio(props.color1, props.color2);
-  const passed = ratio >= 4.5;
+  const ratio = () => getContrastRatio(props.color1, props.color2);
+  const passed = () => ratio() >= 4.5;
   return (
     <div
       class="contrast-check"
-      style={{ color: passed ? 'var(--color-success)' : 'var(--color-danger)' }}
+      style={{ color: passed() ? 'var(--color-success)' : 'var(--color-danger)' }}
     >
       <span>
-        {passed ? (
+        <Show when={passed()} fallback={<AlertTriangle size={14} aria-hidden="true" />}>
           <Check size={14} aria-hidden="true" />
-        ) : (
-          <AlertTriangle size={14} aria-hidden="true" />
-        )}
+        </Show>
       </span>
       <span>
-        Rasio kontras: {ratio.toFixed(2)}:1 {passed ? '(Lulus WCAG AA)' : '(Gagal - minimal 4.5:1)'}
+        Rasio kontras: {ratio().toFixed(2)}:1{' '}
+        {passed() ? '(Lulus WCAG AA)' : '(Gagal - minimal 4.5:1)'}
       </span>
     </div>
   );

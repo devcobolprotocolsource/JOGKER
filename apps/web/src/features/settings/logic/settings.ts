@@ -60,7 +60,7 @@ export function createStaffResource() {
 type StoreSettings =
   Awaited<ReturnType<typeof loadSettings>> extends { ok: true; data: infer T } ? T : never;
 type StaffMember =
-  Awaited<ReturnType<typeof loadStaff>> extends { ok: true; data: infer T } ? T[number] : never;
+  Awaited<ReturnType<typeof loadStaff>> extends { ok: true; data: (infer T)[] } ? T : never;
 
 export async function handleUpdateSettings(input: SettingsInput) {
   setSettingsSaving(true);

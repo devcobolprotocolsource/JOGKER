@@ -1,6 +1,9 @@
 {
-  "*.{ts,tsx,js,jsx,json,css,md}": [
-    "prettier --check",
-    "eslint --fix"
+  "apps/web/**/*.{ts,tsx}": [
+    "pnpm --filter @jokger/web exec prettier --check",
+    "pnpm --filter @jokger/web exec eslint --config eslint.config.js --fix"
+  ],
+  "apps/web/**/*.{json,css,md}": [
+    "pnpm --filter @jokger/web exec prettier --check"
   ]
 }

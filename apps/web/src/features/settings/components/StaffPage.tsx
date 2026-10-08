@@ -1,5 +1,5 @@
 import { For, Show, createSignal, onMount } from 'solid-js';
-import { UserPlus, Shield, EyeOff, Save } from 'lucide-solid';
+import { UserPlus, Shield, Save } from 'lucide-solid';
 import {
   Button,
   Card,
@@ -14,10 +14,10 @@ import {
   ConfirmDialog,
 } from '../../../shared/ui';
 import { strings } from '../../../shared/strings';
-import { settingsState } from '../state/settings';
+import { sessionState } from '../../../shared/stores/session';
 import type { StaffMember } from '../api/settings';
 import { loadStaff, createStaff, updateStaffRole, toggleStaffActive } from '../api/settings';
-import { setStaff, setSettingsSaving, settingsState } from '../state/settings';
+import { setStaff, setSettingsSaving, setSelectedStaffId } from '../state/settings';
 import { staffSchema, roleOptions } from '../schemas/settings';
 
 export function StaffPage() {
@@ -110,7 +110,9 @@ export function StaffPage() {
     setConfirmMessage(
       newStatus ? strings.settings.activateConfirm : strings.settings.deactivateConfirm
     );
-    setConfirmAction(() => handleToggleActive(staffMember.id, newStatus));
+    setConfirmAction(() => () => {
+      void handleToggleActive(staffMember.id, newStatus);
+    });
     setConfirmOpen(true);
   }
 
@@ -130,7 +132,9 @@ export function StaffPage() {
 
   function confirmRoleChange(staffMember: StaffMember, newRole: 'admin' | 'super_admin') {
     setConfirmMessage(strings.settings.roleChangeConfirm);
-    setConfirmAction(() => handleRoleChange(staffMember.id, newRole));
+    setConfirmAction(() => () => {
+      void handleRoleChange(staffMember.id, newRole);
+    });
     setConfirmOpen(true);
   }
 
@@ -206,18 +210,20 @@ export function StaffPage() {
                       </td>
                       <td>
                         <Switch
+                          label={strings.settings.colStatus}
                           checked={s.is_active}
                           onChange={(checked) => confirmToggleActive(s, checked)}
-                          disabled={s.id === settingsState.profile?.id}
+                          disabled={s.id === sessionState.profile?.id}
                         />
                       </td>
                       <td>{new Date(s.created_at).toLocaleDateString('id-ID')}</td>
                       <td>
                         <Toolbar gap={2}>
                           <IconButton
-                            aria-label={
+                            label={
                               s.role === 'super_admin' ? 'Ubah ke Admin' : 'Ubah ke Super Admin'
                             }
+                            icon={Shield}
                             variant="ghost"
                             onClick={() =>
                               confirmRoleChange(
@@ -225,18 +231,15 @@ export function StaffPage() {
                                 s.role === 'super_admin' ? 'admin' : 'super_admin'
                               )
                             }
-                            disabled={s.id === settingsState.profile?.id}
-                          >
-                            <Shield size={18} aria-hidden="true" />
-                          </IconButton>
+                            disabled={s.id === sessionState.profile?.id}
+                          />
                           <IconButton
-                            aria-label="Nonaktifkan"
+                            label={s.is_active ? 'Nonaktifkan' : 'Aktifkan'}
+                            icon={Shield}
                             variant="ghost"
-                            class="text-danger"
-                            disabled={s.id === settingsState.profile?.id}
-                          >
-                            <EyeOff size={18} aria-hidden="true" />
-                          </IconButton>
+                            onClick={() => confirmToggleActive(s, !s.is_active)}
+                            disabled={s.id === sessionState.profile?.id}
+                          />
                         </Toolbar>
                       </td>
                     </tr>
@@ -249,39 +252,49 @@ export function StaffPage() {
       </Card>
 
       <StaffDialog
-        isOpen={dialogOpen()}
-        onClose={() => setDialogOpen(false)}
+        open={dialogOpen()}
+        onClose={() => {
+          setDialogOpen(false);
+        }}
         mode={dialogMode()}
         onSubmit={handleSubmit}
       />
 
       <ConfirmDialog
-        isOpen={confirmOpen()}
-        onClose={() => setConfirmOpen(false)}
+        open={confirmOpen()}
+        onClose={() => {
+          setConfirmOpen(false);
+        }}
         onConfirm={confirmAction()}
         title={strings.settings.confirm}
-        message={confirmMessage()}
+        description={confirmMessage()}
         confirmLabel={strings.common.save}
         cancelLabel={strings.common.cancel}
-        variant="destructive"
+        destructive
       />
 
       <Show when={toast()}>
-        <Toast type={toast()!.type} message={toast()!.message} onClose={() => setToast(null)} />
+        <Toast
+          open={true}
+          title={toast()!.type === 'success' ? 'Berhasil' : 'Error'}
+          variant={toast()!.type}
+          message={toast()!.message}
+          onClose={() => setToast(null)}
+        />
       </Show>
     </div>
   );
 }
 
 function StaffDialog(props: {
-  isOpen: boolean;
+  open: boolean;
   onClose: () => void;
   mode: 'create' | 'edit';
   onSubmit: (e: Event) => void;
 }) {
   return (
     <Modal
-      isOpen={props.isOpen}
+      open={props.open}
       onClose={props.onClose}
       title={props.mode === 'create' ? strings.settings.addStaff : strings.settings.editStaff}
       size="md"
@@ -291,29 +304,42 @@ function StaffDialog(props: {
           <label>{strings.settings.email}</label>
           <Input
             name="email"
+            label={strings.settings.email}
             type="email"
             placeholder="staff@toko.com"
             required
-            autoComplete="email"
+            autocomplete="email"
           />
         </div>
         <div class="form-group">
           <label>{strings.settings.fullName}</label>
-          <Input name="full_name" placeholder="Nama lengkap" required autoComplete="name" />
+          <Input
+            name="full_name"
+            label={strings.settings.fullName}
+            placeholder="Nama lengkap"
+            required
+            autocomplete="name"
+          />
         </div>
         <div class="form-group">
           <label>{strings.settings.role}</label>
-          <Select name="role" options={roleOptions} value="admin" />
+          <Select
+            name="role"
+            label={strings.settings.role}
+            options={[...roleOptions]}
+            value="admin"
+          />
         </div>
         <Show when={props.mode === 'create'}>
           <div class="form-group">
             <label>{strings.settings.password}</label>
             <Input
               name="password"
+              label={strings.settings.password}
               type="password"
               placeholder="Minimal 10 karakter"
               required
-              autoComplete="new-password"
+              autocomplete="new-password"
             />
           </div>
         </Show>
