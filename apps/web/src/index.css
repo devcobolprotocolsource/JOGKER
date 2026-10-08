@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Dynamic SolidJS previews, skeleton delays, and toolbar spacing use inline styles. */
 @layer base {
   :root {
     --color-brand: #6f4e37;

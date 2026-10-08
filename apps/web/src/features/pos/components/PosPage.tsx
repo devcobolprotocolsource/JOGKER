@@ -26,6 +26,7 @@ import {
   loadCatalog,
   loadPaymentAccounts,
   submitPayment,
+  uploadPaymentProof,
   validateVoucherCode,
   type Category,
   type PaymentAccount,
@@ -214,7 +215,20 @@ export function PosPage() {
     }
     const retryLines = paymentLines().length > 0 ? paymentLines() : lines;
     for (let index = paidLineCount(); index < retryLines.length; index += 1) {
-      const payment = await submitPayment(order.id, retryLines[index]!);
+      let line = retryLines[index]!;
+      if (line.proof_file && !line.proof_path) {
+        const uploaded = await uploadPaymentProof(order.id, line.proof_file);
+        if (!uploaded.ok) {
+          setLoading(false);
+          setRequestError(uploaded.error.message);
+          return;
+        }
+        line = { ...line, proof_path: uploaded.data, proof_file: undefined };
+        setPaymentLines((current) =>
+          current.map((paymentLine, lineIndex) => (lineIndex === index ? line : paymentLine))
+        );
+      }
+      const payment = await submitPayment(order.id, line);
       if (!payment.ok) {
         setLoading(false);
         setRequestError(strings.pos.paymentError);

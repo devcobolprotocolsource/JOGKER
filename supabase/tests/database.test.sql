@@ -40,14 +40,17 @@ grant all on rpc_test_data to authenticated;
 
 select set_config('request.jwt.claim.sub', '90000000-0000-4000-8000-000000000001', true);
 select ok(
-  (select count(*) = 24 from pg_proc
+  (select count(*) = 33 from pg_proc
    where pronamespace = 'public'::regnamespace and proname = any(array[
      'open_shift', 'close_shift', 'create_order', 'add_items_to_open_bill', 'void_order_item',
      'cancel_order', 'change_order_status', 'apply_voucher', 'submit_payment', 'verify_payment',
      'close_open_bill', 'finalize_stock_opname', 'record_stock_movement', 'open_stock_opname',
      'save_stock_opname_count', 'update_store_settings', 'upsert_category', 'upsert_menu_item',
      'set_menu_item_available', 'upsert_inventory_item', 'upsert_voucher', 'set_voucher_active',
-     'upsert_payment_account', 'set_payment_account_active'
+     'upsert_payment_account', 'set_payment_account_active',
+     'get_sales_summary', 'get_daily_sales', 'get_hourly_sales', 'get_category_sales',
+     'get_item_sales', 'get_method_sales', 'get_voucher_usage',
+     'set_staff_role', 'set_staff_active'
    ]) and prosecdef),
   'Semua RPC publik wajib ada dan SECURITY DEFINER'
 );
@@ -90,6 +93,41 @@ select is((change_order_status((select id from rpc_test_data where name = 'cash_
   'ready'::order_status, 'Pesanan dapat ditandai siap');
 select is((change_order_status((select id from rpc_test_data where name = 'cash_order'), 'completed')).status,
   'completed'::order_status, 'Pesanan lunas dapat diselesaikan');
+select is(
+  (get_sales_summary(now() - interval '1 day', now() + interval '1 day') ->> 'totalSales')::bigint,
+  36000::bigint,
+  'Laporan ringkasan memakai total order selesai dan pembayaran non-rejected'
+);
+select is(
+  (select "totalSales" from get_daily_sales(now() - interval '1 day', now() + interval '1 day')),
+  36000::bigint,
+  'Laporan harian mengembalikan total penjualan pada zona lokal'
+);
+select is(
+  (select "totalSales" from get_hourly_sales(now() - interval '1 day', now() + interval '1 day')),
+  36000::bigint,
+  'Laporan per jam mengembalikan total penjualan'
+);
+select is(
+  (select "totalSales" from get_category_sales(now() - interval '1 day', now() + interval '1 day')),
+  36000::bigint,
+  'Laporan kategori menghitung item yang tidak di-void'
+);
+select is(
+  (select "totalQty" from get_item_sales(now() - interval '1 day', now() + interval '1 day')),
+  2::bigint,
+  'Laporan item mengembalikan kuantitas item'
+);
+select is(
+  (select "totalSales" from get_method_sales(now() - interval '1 day', now() + interval '1 day')),
+  36000::bigint,
+  'Laporan metode pembayaran menghitung pembayaran non-rejected'
+);
+select is(
+  (select count(*) from get_voucher_usage(now() - interval '1 day', now() + interval '1 day')),
+  0::bigint,
+  'Laporan voucher mengembalikan array kosong bila tidak ada voucher selesai'
+);
 select throws_ok($$select change_order_status((select id from rpc_test_data where name = 'cash_order'), 'processing')$$,
   'P0001', 'ORDER_STATUS_TRANSITION_INVALID', 'Transisi dari status terminal ditolak');
 

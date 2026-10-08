@@ -71,10 +71,10 @@ export function PaymentAccountsPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Hapus rekening ini?')) return;
+    if (!confirm(strings.payments.deactivateAccountConfirm)) return;
     try {
       await handleDeleteAccount(id);
-      showToast('success', 'Rekening dihapus');
+      showToast('success', strings.payments.accountDeactivated);
       refetch();
     } catch (error) {
       showToast('error', error instanceof Error ? error.message : 'Gagal menghapus');
@@ -259,7 +259,7 @@ export function PaymentAccountsPage() {
                             onClick={() => openEditDialog(account)}
                           />
                           <IconButton
-                            label="Hapus"
+                            label={strings.payments.deactivateAccount}
                             icon={() => (
                               <svg
                                 viewBox="0 0 24 24"

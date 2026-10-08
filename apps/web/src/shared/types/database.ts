@@ -436,29 +436,35 @@ export type Database = {
         Row: {
           account_name: string;
           account_no: string;
+          created_at: string;
           id: string;
           is_active: boolean;
           method: Database['public']['Enums']['payment_method'];
           provider: string;
           sort_order: number;
+          updated_at: string;
         };
         Insert: {
           account_name: string;
           account_no: string;
+          created_at?: string;
           id?: string;
           is_active?: boolean;
           method: Database['public']['Enums']['payment_method'];
           provider: string;
           sort_order?: number;
+          updated_at?: string;
         };
         Update: {
           account_name?: string;
           account_no?: string;
+          created_at?: string;
           id?: string;
           is_active?: boolean;
           method?: Database['public']['Enums']['payment_method'];
           provider?: string;
           sort_order?: number;
+          updated_at?: string;
         };
         Relationships: [];
       };
@@ -535,6 +541,7 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string;
+          email: string | null;
           full_name: string;
           id: string;
           is_active: boolean;
@@ -542,6 +549,7 @@ export type Database = {
         };
         Insert: {
           created_at?: string;
+          email?: string | null;
           full_name: string;
           id: string;
           is_active?: boolean;
@@ -549,6 +557,7 @@ export type Database = {
         };
         Update: {
           created_at?: string;
+          email?: string | null;
           full_name?: string;
           id?: string;
           is_active?: boolean;
@@ -1214,6 +1223,85 @@ export type Database = {
           status: string;
         };
       };
+      get_category_sales: {
+        Args: {
+          p_from: string;
+          p_to: string;
+        };
+        Returns: {
+          category_id: string;
+          category_name: string;
+          totalQty: number;
+          totalSales: number;
+        }[];
+      };
+      get_daily_sales: {
+        Args: {
+          p_from: string;
+          p_to: string;
+        };
+        Returns: {
+          avgTransaction: number;
+          date: string;
+          totalSales: number;
+          totalTransactions: number;
+        }[];
+      };
+      get_hourly_sales: {
+        Args: {
+          p_from: string;
+          p_to: string;
+        };
+        Returns: {
+          hour: number;
+          totalSales: number;
+          totalTransactions: number;
+        }[];
+      };
+      get_item_sales: {
+        Args: {
+          p_from: string;
+          p_to: string;
+        };
+        Returns: {
+          category_name: string;
+          item_name: string;
+          menu_item_id: string;
+          totalQty: number;
+          totalSales: number;
+        }[];
+      };
+      get_method_sales: {
+        Args: {
+          p_from: string;
+          p_to: string;
+        };
+        Returns: {
+          method: string;
+          totalSales: number;
+          totalTransactions: number;
+        }[];
+      };
+      get_sales_summary: {
+        Args: {
+          p_from: string;
+          p_to: string;
+        };
+        Returns: Json;
+      };
+      get_voucher_usage: {
+        Args: {
+          p_from: string;
+          p_to: string;
+        };
+        Returns: {
+          totalDiscount: number;
+          usageCount: number;
+          voucher_code: string;
+          voucher_id: string;
+          voucher_name: string;
+        }[];
+      };
       is_staff: {
         Args: Record<PropertyKey, never>;
         Returns: boolean;
@@ -1300,6 +1388,20 @@ export type Database = {
           sort_order: number;
           updated_at: string;
         };
+      };
+      set_staff_active: {
+        Args: {
+          p_active: boolean;
+          p_user_id: string;
+        };
+        Returns: Database['public']['Tables']['profiles']['Row'];
+      };
+      set_staff_role: {
+        Args: {
+          p_role: Database['public']['Enums']['role_type'];
+          p_user_id: string;
+        };
+        Returns: Database['public']['Tables']['profiles']['Row'];
       };
       set_payment_account_active: {
         Args: {

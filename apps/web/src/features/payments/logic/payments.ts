@@ -12,7 +12,6 @@ import {
   setPaymentsError,
   addPaymentAccount,
   updatePaymentAccountInState,
-  removePaymentAccountFromState,
   reorderPaymentAccountsInState,
   getPaymentsState,
 } from '../state/payments';
@@ -57,7 +56,7 @@ export async function handleUpdateAccount(
 export async function handleDeleteAccount(id: string) {
   const result = await deletePaymentAccount(id);
   if (!result.ok) throw new Error(result.error.message);
-  removePaymentAccountFromState(id);
+  updatePaymentAccountInState(id, result.data);
 }
 
 export async function handleReorderAccounts(updates: { id: string; sort_order: number }[]) {

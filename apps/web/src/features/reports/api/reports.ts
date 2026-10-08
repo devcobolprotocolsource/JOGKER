@@ -58,8 +58,8 @@ export async function loadSummaryReport(range: ReportDateRange): Promise<Result<
   return capture(async () => {
     const client = getSupabaseClient();
     const { data, error } = await client.rpc('get_sales_summary', {
-      p_start_date: range.startDate,
-      p_end_date: range.endDate,
+      p_from: range.startDate,
+      p_to: range.endDate,
     });
     if (error) throw error;
     return data as SummaryReport;
@@ -70,8 +70,8 @@ export async function loadDailyReport(range: ReportDateRange): Promise<Result<Da
   return capture(async () => {
     const client = getSupabaseClient();
     const { data, error } = await client.rpc('get_daily_sales', {
-      p_start_date: range.startDate,
-      p_end_date: range.endDate,
+      p_from: range.startDate,
+      p_to: range.endDate,
     });
     if (error) throw error;
     return data as DailyReportItem[];
@@ -84,8 +84,8 @@ export async function loadHourlyReport(
   return capture(async () => {
     const client = getSupabaseClient();
     const { data, error } = await client.rpc('get_hourly_sales', {
-      p_start_date: range.startDate,
-      p_end_date: range.endDate,
+      p_from: range.startDate,
+      p_to: range.endDate,
     });
     if (error) throw error;
     return data as HourlyReportItem[];
@@ -98,8 +98,8 @@ export async function loadCategoryReport(
   return capture(async () => {
     const client = getSupabaseClient();
     const { data, error } = await client.rpc('get_category_sales', {
-      p_start_date: range.startDate,
-      p_end_date: range.endDate,
+      p_from: range.startDate,
+      p_to: range.endDate,
     });
     if (error) throw error;
     return data as CategoryReportItem[];
@@ -110,8 +110,8 @@ export async function loadItemReport(range: ReportDateRange): Promise<Result<Ite
   return capture(async () => {
     const client = getSupabaseClient();
     const { data, error } = await client.rpc('get_item_sales', {
-      p_start_date: range.startDate,
-      p_end_date: range.endDate,
+      p_from: range.startDate,
+      p_to: range.endDate,
     });
     if (error) throw error;
     return data as ItemReportItem[];
@@ -124,8 +124,8 @@ export async function loadMethodReport(
   return capture(async () => {
     const client = getSupabaseClient();
     const { data, error } = await client.rpc('get_method_sales', {
-      p_start_date: range.startDate,
-      p_end_date: range.endDate,
+      p_from: range.startDate,
+      p_to: range.endDate,
     });
     if (error) throw error;
     return data as MethodReportItem[];
@@ -138,8 +138,8 @@ export async function loadVoucherReport(
   return capture(async () => {
     const client = getSupabaseClient();
     const { data, error } = await client.rpc('get_voucher_usage', {
-      p_start_date: range.startDate,
-      p_end_date: range.endDate,
+      p_from: range.startDate,
+      p_to: range.endDate,
     });
     if (error) throw error;
     return data as VoucherReportItem[];

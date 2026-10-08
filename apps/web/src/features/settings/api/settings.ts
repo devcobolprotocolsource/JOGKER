@@ -45,12 +45,24 @@ export async function loadSettings(): Promise<Result<StoreSettings>> {
 export async function updateSettings(input: SettingsInput): Promise<Result<StoreSettings>> {
   return capture(async () => {
     const client = getSupabaseClient();
-    const { data, error } = await client
-      .from('store_settings')
-      .update(input)
-      .eq('id', 1)
-      .select()
-      .single();
+    const { data, error } = await client.rpc('update_store_settings', {
+      p_settings: {
+        store_name: input.store_name,
+        address: input.address,
+        phone: input.phone,
+        tax_percent: input.tax_percent,
+        service_percent: input.service_percent,
+        rounding_rule: input.rounding_rule,
+        receipt_header: input.receipt_header,
+        receipt_footer: input.receipt_footer,
+        paper_width_mm: input.paper_width_mm,
+        require_verified_payment_before_complete: input.require_payment_verification,
+        open_hours: {
+          start: input.operating_hours_start ?? null,
+          end: input.operating_hours_end ?? null,
+        },
+      },
+    });
     if (error) throw error;
     return data as StoreSettings;
   });
@@ -59,12 +71,9 @@ export async function updateSettings(input: SettingsInput): Promise<Result<Store
 export async function updateBranding(input: BrandingInput): Promise<Result<StoreSettings>> {
   return capture(async () => {
     const client = getSupabaseClient();
-    const { data, error } = await client
-      .from('store_settings')
-      .update(input)
-      .eq('id', 1)
-      .select()
-      .single();
+    const { data, error } = await client.rpc('update_store_settings', {
+      p_settings: input,
+    });
     if (error) throw error;
     return data as StoreSettings;
   });
@@ -99,14 +108,28 @@ export async function loadStaff(): Promise<Result<StaffMember[]>> {
 export async function createStaff(input: StaffInput): Promise<Result<StaffMember>> {
   return capture(async () => {
     const client = getSupabaseClient();
-    const { data, error } = await client.rpc('create_staff', {
-      p_email: input.email,
-      p_full_name: input.full_name,
-      p_role: input.role,
-      p_password: input.password,
+    const { data: sessionData, error: sessionError } = await client.auth.getSession();
+    if (sessionError) throw sessionError;
+    const accessToken = sessionData.session?.access_token;
+    if (!accessToken) throw new Error('STAFF_CREATE_UNAUTHORIZED');
+
+    const response = await fetch('/api/admin/create-staff', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(input),
     });
-    if (error) throw error;
-    return data as StaffMember;
+    if (response.status !== 201) {
+      if (response.status === 400) throw new Error('STAFF_CREATE_INVALID');
+      if (response.status === 401) throw new Error('STAFF_CREATE_UNAUTHORIZED');
+      if (response.status === 403) throw new Error('STAFF_CREATE_FORBIDDEN');
+      if (response.status === 405) throw new Error('STAFF_CREATE_METHOD_NOT_ALLOWED');
+      throw new Error('STAFF_CREATE_FAILED');
+    }
+    const payload = (await response.json()) as { data: StaffMember };
+    return payload.data;
   });
 }
 
@@ -116,7 +139,10 @@ export async function updateStaffRole(
 ): Promise<Result<void>> {
   return capture(async () => {
     const client = getSupabaseClient();
-    const { error } = await client.from('profiles').update({ role }).eq('id', id);
+    const { error } = await client.rpc('set_staff_role', {
+      p_user_id: id,
+      p_role: role,
+    });
     if (error) throw error;
   });
 }
@@ -124,7 +150,10 @@ export async function updateStaffRole(
 export async function toggleStaffActive(id: string, isActive: boolean): Promise<Result<void>> {
   return capture(async () => {
     const client = getSupabaseClient();
-    const { error } = await client.from('profiles').update({ is_active: isActive }).eq('id', id);
+    const { error } = await client.rpc('set_staff_active', {
+      p_user_id: id,
+      p_active: isActive,
+    });
     if (error) throw error;
   });
 }

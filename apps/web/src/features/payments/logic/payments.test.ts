@@ -78,7 +78,10 @@ describe('payment account logic', () => {
       data: { ...account, provider: 'Updated Bank' },
     });
     vi.mocked(reorderPaymentAccounts).mockResolvedValue({ ok: true, data: undefined });
-    vi.mocked(deletePaymentAccount).mockResolvedValue({ ok: true, data: undefined });
+    vi.mocked(deletePaymentAccount).mockResolvedValue({
+      ok: true,
+      data: { ...account, is_active: false },
+    });
 
     await handleCreateAccount({
       method: 'transfer',
@@ -97,6 +100,6 @@ describe('payment account logic', () => {
     expect(getPaymentAccount('account-1')?.sort_order).toBe(4);
 
     await handleDeleteAccount('account-1');
-    expect(getPaymentAccount('account-1')).toBeUndefined();
+    expect(getPaymentAccount('account-1')?.is_active).toBe(false);
   });
 });

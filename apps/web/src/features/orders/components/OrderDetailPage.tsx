@@ -5,6 +5,10 @@ import { Button, Card, ConfirmDialog, Money, StatusBadge } from '../../../shared
 import { strings } from '../../../shared/strings';
 import { canTransitionOrder, type OrderStatus } from '../../../shared/lib/order-status';
 import { formatDateJakarta, formatTimeJakarta } from '../../../shared/lib/format';
+import { getSupabaseClient } from '../../../shared/api/supabase';
+import type { PaperWidth, ReceiptData } from '../../../shared/lib/receipt';
+import { ReceiptPrintView } from '../../printing/components/ReceiptPrintView';
+import { enqueueReceipt } from '../../printing/logic/print-queue';
 import {
   cancelOrder,
   changeOrderStatus,
@@ -25,6 +29,8 @@ export function OrderDetailPage() {
   const [cancelOpen, setCancelOpen] = createSignal(false);
   const [voidItemId, setVoidItemId] = createSignal('');
   const [rejectPaymentId, setRejectPaymentId] = createSignal('');
+  const [receiptToPrint, setReceiptToPrint] = createSignal<ReceiptData | null>(null);
+  const [receiptWidth, setReceiptWidth] = createSignal<PaperWidth>(58);
 
   async function refresh() {
     setLoading(true);
@@ -103,6 +109,79 @@ export function OrderDetailPage() {
     await refresh();
   }
 
+  async function reprintReceipt() {
+    const currentOrder = order();
+    if (!currentOrder) return;
+    const { data: settings, error: settingsError } = await getSupabaseClient()
+      .from('store_settings')
+      .select('store_name, address, phone, receipt_header, receipt_footer, paper_width_mm')
+      .eq('id', 1)
+      .single();
+    if (settingsError) {
+      setError(strings.settings.printFailed);
+      return;
+    }
+
+    const receipt: ReceiptData = {
+      storeName: settings.store_name,
+      address: settings.address,
+      phone: settings.phone,
+      header: settings.receipt_header,
+      footer: settings.receipt_footer,
+      orderNo: currentOrder.order_no,
+      createdAt: currentOrder.created_at,
+      tableLabel:
+        currentOrder.table_label ??
+        currentOrder.customer_name ??
+        (currentOrder.order_type === 'dine_in' ? strings.pos.dineIn : strings.pos.takeaway),
+      lines: currentOrder.order_items
+        .filter((item) => !item.is_voided)
+        .map((item) => ({
+          name: item.item_name,
+          quantity: item.qty,
+          lineTotal: item.line_total,
+          modifiers: item.modifiers.map((modifier) => modifier.name),
+        })),
+      subtotal: currentOrder.subtotal,
+      discountTotal: currentOrder.discount_total,
+      voucherCode: currentOrder.voucher_code,
+      serviceAmount: currentOrder.service_amount,
+      taxAmount: currentOrder.tax_amount,
+      roundingAmount: currentOrder.rounding_amount,
+      grandTotal: currentOrder.grand_total,
+      payments: currentOrder.payments
+        .filter((payment) => payment.status !== 'rejected')
+        .map((payment) => ({
+          method:
+            payment.method === 'cash'
+              ? strings.pos.cash
+              : payment.method === 'transfer'
+                ? strings.pos.transfer
+                : strings.pos.ewallet,
+          amount: payment.amount,
+        })),
+      change: currentOrder.payments.reduce(
+        (total, payment) =>
+          total +
+          (payment.method === 'cash' && payment.received_amount
+            ? payment.received_amount - payment.amount
+            : 0),
+        0
+      ),
+    };
+    const width: PaperWidth = settings.paper_width_mm === 80 ? 80 : 58;
+    setReceiptToPrint(receipt);
+    setReceiptWidth(width);
+    window.setTimeout(() => {
+      try {
+        window.print();
+      } catch {
+        enqueueReceipt(receipt, width, true);
+        setError(strings.settings.printQueueSaved);
+      }
+    }, 0);
+  }
+
   return (
     <main class="order-detail page-content">
       <A class="back-link" href="/orders">
@@ -170,6 +249,11 @@ export function OrderDetailPage() {
                 <Button variant="secondary" onClick={() => void refresh()}>
                   {strings.orders.refresh}
                 </Button>
+                <Show when={value().status === 'completed'}>
+                  <Button variant="secondary" onClick={() => void reprintReceipt()}>
+                    {strings.orderDetail.reprint}
+                  </Button>
+                </Show>
               </div>
               <div class="order-detail__grid">
                 <Card class="order-detail__section">
@@ -367,6 +451,9 @@ export function OrderDetailPage() {
             </>
           )}
         </Show>
+      </Show>
+      <Show when={receiptToPrint()}>
+        {(receipt) => <ReceiptPrintView data={receipt()} paperWidth={receiptWidth()} reprint />}
       </Show>
       <ConfirmDialog
         open={cancelOpen()}

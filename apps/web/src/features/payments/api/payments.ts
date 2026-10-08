@@ -45,7 +45,9 @@ export async function createPaymentAccount(
 ): Promise<Result<PaymentAccount>> {
   return capture(async () => {
     const client = getSupabaseClient();
-    const { data, error } = await client.from('payment_accounts').insert(input).select().single();
+    const { data, error } = await client.rpc('upsert_payment_account', {
+      p_account: input,
+    });
     if (error) throw error;
     return data as PaymentAccount;
   });
@@ -57,22 +59,29 @@ export async function updatePaymentAccount(
 ): Promise<Result<PaymentAccount>> {
   return capture(async () => {
     const client = getSupabaseClient();
-    const { data, error } = await client
+    const { data: current, error: selectError } = await client
       .from('payment_accounts')
-      .update(input)
+      .select('*')
       .eq('id', id)
-      .select()
       .single();
+    if (selectError) throw selectError;
+    const { data, error } = await client.rpc('upsert_payment_account', {
+      p_account: { ...current, ...input, id },
+    });
     if (error) throw error;
     return data as PaymentAccount;
   });
 }
 
-export async function deletePaymentAccount(id: string): Promise<Result<void>> {
+export async function deletePaymentAccount(id: string): Promise<Result<PaymentAccount>> {
   return capture(async () => {
     const client = getSupabaseClient();
-    const { error } = await client.from('payment_accounts').delete().eq('id', id);
+    const { data, error } = await client.rpc('set_payment_account_active', {
+      p_account_id: id,
+      p_is_active: false,
+    });
     if (error) throw error;
+    return data as PaymentAccount;
   });
 }
 
@@ -81,11 +90,21 @@ export async function reorderPaymentAccounts(
 ): Promise<Result<void>> {
   return capture(async () => {
     const client = getSupabaseClient();
+    const { data: accounts, error: selectError } = await client
+      .from('payment_accounts')
+      .select('*')
+      .in(
+        'id',
+        updates.map(({ id }) => id)
+      );
+    if (selectError) throw selectError;
+    const accountsById = new Map(accounts.map((account) => [account.id, account]));
     for (const update of updates) {
-      const { error } = await client
-        .from('payment_accounts')
-        .update({ sort_order: update.sort_order })
-        .eq('id', update.id);
+      const account = accountsById.get(update.id);
+      if (!account) throw new Error('PAYMENT_ACCOUNT_NOT_FOUND');
+      const { error } = await client.rpc('upsert_payment_account', {
+        p_account: { ...account, sort_order: update.sort_order },
+      });
       if (error) throw error;
     }
   });

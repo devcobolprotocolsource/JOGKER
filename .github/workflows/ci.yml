@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm --filter @jokger/web format:check
+      - run: pnpm typecheck
+      - run: pnpm api:typecheck
+      - run: pnpm test
+      - run: pnpm exec supabase start
+      - run: pnpm exec supabase db reset
+      - run: pnpm exec supabase test db
+      - run: pnpm db:types
+      - run: git diff --exit-code -- apps/web/src/shared/types/database.ts
+      - run: pnpm build
+      - name: Check client bundle for service-role credentials
+        run: |
+          if grep -R -n -E 'SUPABASE_SERVICE_ROLE_KEY|service_role' apps/web/dist; then
+            echo "Service-role credential material found in the client bundle."
+            exit 1
+          fi
+      - run: pnpm --filter @jokger/web exec playwright install --with-deps
+      - run: pnpm --filter @jokger/web test:e2e
+      - run: pnpm exec lhci autorun
+      - run: pnpm audit --audit-level=high
+      - uses: gitleaks/gitleaks-action@v2

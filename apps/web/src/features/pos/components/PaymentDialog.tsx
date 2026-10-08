@@ -17,6 +17,7 @@ interface PaymentRow {
   accountId: string;
   reference: string;
   received: number;
+  proofFile: File | null;
 }
 
 export function PaymentDialog(props: {
@@ -32,6 +33,7 @@ export function PaymentDialog(props: {
   const [received, setReceived] = createSignal(0);
   const [accountId, setAccountId] = createSignal('');
   const [reference, setReference] = createSignal('');
+  const [proofFile, setProofFile] = createSignal<File | null>(null);
   const [rows, setRows] = createSignal<PaymentRow[]>([]);
   const [inputError, setInputError] = createSignal('');
   const change = createMemo(() => Math.max(0, received() - props.total));
@@ -54,6 +56,7 @@ export function PaymentDialog(props: {
           accountId: '',
           reference: '',
           received: 0,
+          proofFile: null,
         },
       ]);
   }
@@ -86,6 +89,7 @@ export function PaymentDialog(props: {
           amount: row.amount,
           payment_account_id: row.accountId || undefined,
           reference_no: row.reference || undefined,
+          proof_file: row.proofFile ?? undefined,
           received_amount: row.method === 'cash' ? Math.max(row.received, row.amount) : undefined,
         }))
       );
@@ -110,6 +114,7 @@ export function PaymentDialog(props: {
         amount: props.total,
         payment_account_id: accountId(),
         reference_no: reference(),
+        proof_file: proofFile() ?? undefined,
       },
     ]);
   }
@@ -180,6 +185,27 @@ export function PaymentDialog(props: {
               onInput={(event) => setReference(event.currentTarget.value)}
             />
           </label>
+          <label class="field">
+            <span class="field__label">{strings.pos.paymentProof}</span>
+            <input
+              class="input"
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={(event) => {
+                const file = event.currentTarget.files?.[0] ?? null;
+                if (file && file.size > 5 * 1024 * 1024) {
+                  setInputError(strings.pos.proofTooLarge);
+                  setProofFile(null);
+                } else if (file && !['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+                  setInputError(strings.pos.proofImage);
+                  setProofFile(null);
+                } else {
+                  setInputError('');
+                  setProofFile(file);
+                }
+              }}
+            />
+          </label>
         </Show>
         <Show when={method() === 'split'}>
           <p class="payment-remaining">
@@ -218,6 +244,30 @@ export function PaymentDialog(props: {
                         })),
                     ]}
                   />
+                  <label class="field">
+                    <span class="field__label">{strings.pos.paymentProof}</span>
+                    <input
+                      class="input"
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      onChange={(event) => {
+                        const file = event.currentTarget.files?.[0] ?? null;
+                        if (file && file.size > 5 * 1024 * 1024) {
+                          setInputError(strings.pos.proofTooLarge);
+                          updateRow(row.key, 'proofFile', null);
+                        } else if (
+                          file &&
+                          !['image/jpeg', 'image/png', 'image/webp'].includes(file.type)
+                        ) {
+                          setInputError(strings.pos.proofImage);
+                          updateRow(row.key, 'proofFile', null);
+                        } else {
+                          setInputError('');
+                          updateRow(row.key, 'proofFile', file);
+                        }
+                      }}
+                    />
+                  </label>
                 </Show>
               </div>
             )}
@@ -234,6 +284,7 @@ export function PaymentDialog(props: {
                   accountId: '',
                   reference: '',
                   received: 0,
+                  proofFile: null,
                 },
               ])
             }
@@ -259,7 +310,7 @@ export function PaymentDialog(props: {
     </Modal>
   );
 
-  function updateRow(key: number, field: keyof PaymentRow, value: string | number) {
+  function updateRow(key: number, field: keyof PaymentRow, value: string | number | File | null) {
     setRows((current) =>
       current.map((row) => (row.key === key ? { ...row, [field]: value } : row))
     );

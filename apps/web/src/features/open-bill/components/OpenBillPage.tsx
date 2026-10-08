@@ -22,6 +22,7 @@ import {
   closeOpenBill,
   loadCatalog,
   loadPaymentAccounts,
+  uploadPaymentProof,
   type PaymentAccount,
   type PaymentLine,
   type Category,
@@ -153,7 +154,21 @@ export function OpenBillPage() {
       return;
     }
     setBusy(true);
-    const result = await closeOpenBill(current.id, payments);
+    const lines: PaymentLine[] = [];
+    for (const payment of payments) {
+      if (payment.proof_file) {
+        const uploaded = await uploadPaymentProof(current.id, payment.proof_file);
+        if (!uploaded.ok) {
+          setBusy(false);
+          setError(uploaded.error.message);
+          return;
+        }
+        lines.push({ ...payment, proof_path: uploaded.data, proof_file: undefined });
+      } else {
+        lines.push(payment);
+      }
+    }
+    const result = await closeOpenBill(current.id, lines);
     setBusy(false);
     if (!result.ok) {
       setError(result.error.message);

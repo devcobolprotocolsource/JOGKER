@@ -45,4 +45,30 @@ describe('POS cart logic', () => {
       grandTotal: 26620,
     });
   });
+
+  it('matches modifiers independent of order and includes modifier prices and discounts', () => {
+    const firstModifier = {
+      id: 'large',
+      group_id: 'size',
+      name: 'Large',
+      extra_price: 5000,
+      is_active: true,
+    };
+    const secondModifier = {
+      id: 'oat',
+      group_id: 'milk',
+      name: 'Oat milk',
+      extra_price: 3000,
+      is_active: true,
+    };
+    const cart = addCartLine([], menu, [firstModifier, secondModifier]);
+    const merged = addCartLine(cart, menu, [secondModifier, firstModifier]);
+
+    expect(merged).toHaveLength(1);
+    expect(merged[0]?.quantity).toBe(2);
+    expect(cartItemTotal(merged[0]!)).toBe(60000);
+    expect(
+      cartTotals(merged, { servicePercent: 0, taxPercent: 0, roundingRule: 'none' }, 2000)
+    ).toMatchObject({ subtotal: 60000, discountTotal: 2000, grandTotal: 58000 });
+  });
 });

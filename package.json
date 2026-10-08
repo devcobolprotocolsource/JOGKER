@@ -12,19 +12,22 @@
     "test:e2e": "pnpm --filter web test:e2e",
     "lint": "pnpm --filter web lint",
     "format": "pnpm --filter web format",
-    "typecheck": "pnpm --filter web typecheck",
+    "typecheck": "pnpm --filter web typecheck && pnpm api:typecheck",
+    "format:check": "pnpm --filter web format:check",
     "db:start": "supabase start",
     "db:reset": "supabase db reset",
     "db:push": "supabase db push",
     "db:types": "supabase gen types typescript --local > apps/web/src/shared/types/database.ts",
+    "api:typecheck": "pnpm --filter @jokger/api exec tsc -p tsconfig.json --noEmit",
     "prepare": "husky install"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.0.0",
     "@commitlint/config-conventional": "^19.0.0",
+    "@lhci/cli": "^0.15.1",
     "husky": "^9.0.0",
     "lint-staged": "^15.0.0",
-    "supabase": "^1.226.4"
+    "supabase": "^2.120.0"
   },
   "engines": {
     "node": ">=20.0.0"

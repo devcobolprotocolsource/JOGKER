@@ -1,7 +1,15 @@
-import { Show, createSignal, onMount } from 'solid-js';
+import { For, Show, createSignal, onMount } from 'solid-js';
 import { Bluetooth, Printer, X, HelpCircle } from 'lucide-solid';
 import { Button, Card, Select, Toast, Badge, Toolbar } from '../../../shared/ui';
 import { strings } from '../../../shared/strings';
+import { ReceiptPrintView } from './ReceiptPrintView';
+import {
+  enqueueReceipt,
+  getPrintQueue,
+  removeQueuedReceipt,
+  type QueuedReceipt,
+} from '../logic/print-queue';
+import type { ReceiptData } from '../../../shared/lib/receipt';
 
 // Web Bluetooth types
 interface BluetoothDevice {
@@ -34,6 +42,10 @@ export function PrinterSettingsPage() {
   const [paperWidth, setPaperWidth] = createSignal<58 | 80>(58);
   const [copies, setCopies] = createSignal(1);
   const [supported, setSupported] = createSignal(false);
+  const [queuedPrints, setQueuedPrints] = createSignal<QueuedReceipt[]>([]);
+  const [printData, setPrintData] = createSignal<ReceiptData | null>(null);
+  const [printWidth, setPrintWidth] = createSignal<58 | 80>(58);
+  const [printReprint, setPrintReprint] = createSignal(false);
 
   function showToast(type: 'success' | 'error', message: string) {
     setToast({ type, message });
@@ -44,6 +56,11 @@ export function PrinterSettingsPage() {
     setSupported('bluetooth' in navigator);
     const savedWidth = localStorage.getItem('printer.paperWidth');
     const savedCopies = localStorage.getItem('printer.copies');
+    try {
+      setQueuedPrints(getPrintQueue());
+    } catch {
+      showToast('error', strings.settings.printQueueLoadFailed);
+    }
     if (savedWidth) setPaperWidth(parseInt(savedWidth) as 58 | 80);
     if (savedCopies) setCopies(parseInt(savedCopies) || 1);
   });
@@ -126,6 +143,49 @@ export function PrinterSettingsPage() {
     }
   }
 
+  function handleBrowserTestPrint() {
+    const data: ReceiptData = {
+      storeName: 'JOKGER',
+      header: strings.settings.testPrint,
+      orderNo: 'JKG-TEST',
+      createdAt: new Date(),
+      lines: [{ name: 'Cetak uji', quantity: 1, lineTotal: 1000 }],
+      subtotal: 1000,
+      discountTotal: 0,
+      serviceAmount: 0,
+      taxAmount: 0,
+      roundingAmount: 0,
+      grandTotal: 1000,
+      payments: [{ method: 'Tunai', amount: 1000 }],
+      change: 0,
+    };
+    printViaBrowser(data, false);
+  }
+
+  function printViaBrowser(data: ReceiptData, reprint: boolean, width: 58 | 80 = paperWidth()) {
+    setPrintData(data);
+    setPrintWidth(width);
+    setPrintReprint(reprint);
+    window.setTimeout(() => {
+      try {
+        window.print();
+      } catch {
+        enqueueReceipt(data, width, reprint);
+        setQueuedPrints(getPrintQueue());
+        showToast('error', strings.settings.printQueueSaved);
+      }
+    }, 0);
+  }
+
+  function retryQueuedPrint(receipt: QueuedReceipt) {
+    printViaBrowser(receipt.data, receipt.reprint, receipt.paperWidth);
+  }
+
+  function removeFromQueue(id: string) {
+    removeQueuedReceipt(id);
+    setQueuedPrints(getPrintQueue());
+  }
+
   function handlePaperWidthChange(e: Event) {
     const value = (e.target as HTMLSelectElement).value;
     const width = parseInt(value) as 58 | 80;
@@ -199,6 +259,10 @@ export function PrinterSettingsPage() {
               >
                 {strings.settings.learnMore}
               </a>
+              <Button variant="secondary" onClick={handleBrowserTestPrint}>
+                <Printer size={18} aria-hidden="true" />
+                {strings.settings.printViaBrowser}
+              </Button>
             </div>
           </Show>
         </Card>
@@ -236,6 +300,34 @@ export function PrinterSettingsPage() {
 
         <Card class="printer-card">
           <header class="card-header">
+            <h2>{strings.settings.printQueueTitle}</h2>
+          </header>
+          <Show
+            when={queuedPrints().length > 0}
+            fallback={<p>{strings.settings.printQueueEmpty}</p>}
+          >
+            <ul>
+              <For each={queuedPrints()}>
+                {(receipt) => (
+                  <li>
+                    <span>{receipt.data.orderNo}</span>
+                    <Toolbar gap={2}>
+                      <Button variant="secondary" onClick={() => retryQueuedPrint(receipt)}>
+                        {strings.settings.retryPrint}
+                      </Button>
+                      <Button variant="ghost" onClick={() => removeFromQueue(receipt.id)}>
+                        {strings.settings.removeQueuedPrint}
+                      </Button>
+                    </Toolbar>
+                  </li>
+                )}
+              </For>
+            </ul>
+          </Show>
+        </Card>
+
+        <Card class="printer-card">
+          <header class="card-header">
             <h2>
               <HelpCircle size={20} aria-hidden="true" /> {strings.settings.help}
             </h2>
@@ -250,6 +342,12 @@ export function PrinterSettingsPage() {
           </div>
         </Card>
       </div>
+
+      <Show when={printData()}>
+        {(data) => (
+          <ReceiptPrintView data={data()} paperWidth={printWidth()} reprint={printReprint()} />
+        )}
+      </Show>
 
       <Show when={toast()}>
         <Toast

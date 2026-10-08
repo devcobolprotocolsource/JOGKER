@@ -15,7 +15,8 @@ export default defineConfig({
       provider: 'v8',
       include: ['src/shared/lib/**/*.ts', 'src/features/*/logic/**/*.ts'],
       thresholds: {
-        lines: 85,
+        'src/shared/lib/**': { lines: 85 },
+        'src/features/*/logic/**': { lines: 85 },
       },
     },
   },

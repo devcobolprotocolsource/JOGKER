@@ -28,6 +28,7 @@ export interface PaymentLine {
   payment_account_id?: string;
   reference_no?: string;
   proof_path?: string;
+  proof_file?: File;
   received_amount?: number;
 }
 
@@ -181,6 +182,28 @@ export async function submitPayment(orderId: string, payment: PaymentLine) {
     });
     if (error) throw error;
     return data;
+  });
+}
+
+export async function uploadPaymentProof(orderId: string, file: File): Promise<Result<string>> {
+  return capture(async () => {
+    if (file.size > 5 * 1024 * 1024) throw new Error('PAYMENT_PROOF_TOO_LARGE');
+    const extension =
+      file.type === 'image/jpeg'
+        ? 'jpg'
+        : file.type === 'image/png'
+          ? 'png'
+          : file.type === 'image/webp'
+            ? 'webp'
+            : null;
+    if (!extension) throw new Error('PAYMENT_PROOF_TYPE_INVALID');
+
+    const path = `${orderId}/${crypto.randomUUID()}.${extension}`;
+    const { data, error } = await getSupabaseClient()
+      .storage.from('payment-proofs')
+      .upload(path, file, { contentType: file.type, upsert: false });
+    if (error) throw error;
+    return data.path;
   });
 }
 

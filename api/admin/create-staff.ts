@@ -62,7 +62,11 @@ export default async function createStaff(
     .select('role, is_active')
     .eq('id', authData.user.id)
     .maybeSingle();
-  if (profileError || caller?.role !== 'super_admin' || !caller.is_active) {
+  if (profileError) {
+    response.status(500).json({ error: 'PROFILE_LOOKUP_FAILED' });
+    return;
+  }
+  if (caller?.role !== 'super_admin' || !caller.is_active) {
     response.status(403).json({ error: 'NOT_AUTHORIZED' });
     return;
   }
@@ -75,21 +79,23 @@ export default async function createStaff(
       user_metadata: { full_name: parsed.data.full_name },
     });
   if (createError || !created.user) {
-    response
-      .status(400)
-      .json({ error: createError?.message ?? 'STAFF_CREATE_FAILED' });
+    response.status(createError?.status === 422 ? 400 : 500).json({
+      error: createError?.status === 422 ? 'INPUT_INVALID' : 'STAFF_CREATE_FAILED',
+    });
     return;
   }
   const { data: profile, error: updateError } = await adminClient
     .from('profiles')
     .update({ full_name: parsed.data.full_name, role: parsed.data.role })
     .eq('id', created.user.id)
-    .select('id, full_name, role, is_active')
+    .select('id, full_name, role, is_active, created_at')
     .single();
   if (updateError) {
     await adminClient.auth.admin.deleteUser(created.user.id);
     response.status(500).json({ error: 'STAFF_PROFILE_FAILED' });
     return;
   }
-  response.status(201).json({ data: profile });
+  response.status(201).json({
+    data: { ...profile, email: created.user.email ?? parsed.data.email },
+  });
 }
