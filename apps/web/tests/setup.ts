@@ -24,3 +24,8 @@ Object.defineProperty(window, 'localStorage', {
     clear: vi.fn(),
   },
 });
+
+Object.defineProperty(window, 'scrollTo', {
+  writable: true,
+  value: vi.fn(),
+});
