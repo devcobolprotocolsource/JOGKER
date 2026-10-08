@@ -36,21 +36,18 @@ function assertInteger(value: number, label: string): void {
 function percentInteger(amount: number, percent: number): number {
   assertInteger(amount, 'Nominal');
   const percentText = String(percent);
-  if (
-    !/^(?:100(?:\.0{1,2})?|(?:\d|[1-9]\d)(?:\.\d{1,2})?)$/.test(percentText)
-  ) {
+  if (!/^(?:100(?:\.0{1,2})?|(?:\d|[1-9]\d)(?:\.\d{1,2})?)$/.test(percentText)) {
     throw new RangeError('Persentase harus berada di antara 0 dan 100.');
   }
   const [whole = '0', fraction = ''] = percentText.split('.');
-  const basisPoints =
-    BigInt(whole) * 100n + BigInt(fraction.padEnd(2, '0') || '0');
+  const basisPoints = BigInt(whole) * 100n + BigInt(fraction.padEnd(2, '0') || '0');
   return Number((BigInt(amount) * basisPoints + 5000n) / 10000n);
 }
 
 export function calculateTotals(
   lines: CartLine[],
   settings: TotalSettings,
-  discount?: Discount | null,
+  discount?: Discount | null
 ): CalculatedTotals {
   let subtotal = 0n;
   for (const line of lines) {
@@ -61,12 +58,10 @@ export function calculateTotals(
     }
     const modifierTotal = (line.modifierPrices ?? []).reduce((total, price) => {
       assertInteger(price, 'Harga modifier');
-      if (price < 0)
-        throw new RangeError('Harga modifier tidak boleh negatif.');
+      if (price < 0) throw new RangeError('Harga modifier tidak boleh negatif.');
       return total + BigInt(price);
     }, 0n);
-    subtotal +=
-      (BigInt(line.unitPrice) + modifierTotal) * BigInt(line.quantity);
+    subtotal += (BigInt(line.unitPrice) + modifierTotal) * BigInt(line.quantity);
   }
 
   const subtotalNumber = Number(subtotal);
@@ -74,14 +69,12 @@ export function calculateTotals(
   let discountTotal = 0;
   if (discount) {
     assertInteger(discount.value, 'Diskon');
-    if (discount.value <= 0)
-      throw new RangeError('Nilai diskon harus lebih dari nol.');
+    if (discount.value <= 0) throw new RangeError('Nilai diskon harus lebih dari nol.');
     if (discount.type === 'percent') {
       discountTotal = percentInteger(subtotalNumber, discount.value);
       if (discount.maxDiscount != null) {
         assertInteger(discount.maxDiscount, 'Batas diskon');
-        if (discount.maxDiscount < 0)
-          throw new RangeError('Batas diskon tidak valid.');
+        if (discount.maxDiscount < 0) throw new RangeError('Batas diskon tidak valid.');
         discountTotal = Math.min(discountTotal, discount.maxDiscount);
       }
     } else {
@@ -101,13 +94,7 @@ export function calculateTotals(
   }
 
   const grandTotal = preRound + roundingAmount;
-  for (const value of [
-    discountTotal,
-    serviceAmount,
-    taxAmount,
-    roundingAmount,
-    grandTotal,
-  ]) {
+  for (const value of [discountTotal, serviceAmount, taxAmount, roundingAmount, grandTotal]) {
     assertInteger(value, 'Total');
   }
   return {

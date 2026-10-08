@@ -1,12 +1,12 @@
-import { createSignal } from 'solid-js';
+import { createSignal, type Accessor } from 'solid-js';
 
 export type ThemeMode = 'light' | 'dark';
-const [theme, setThemeSignal] = createSignal<ThemeMode>('light');
+const [themeSignal, setThemeSignal] = createSignal<ThemeMode>('light');
 const storageKey = 'jokger.theme.v1';
 
 export function applyTheme(mode: ThemeMode): void {
   setThemeSignal(mode);
-  document.documentElement.dataset.theme = mode;
+  document.documentElement.dataset['theme'] = mode;
   document.documentElement.style.colorScheme = mode;
   try {
     localStorage.setItem(storageKey, mode);
@@ -25,17 +25,12 @@ export function initializeTheme(): void {
   const prefersDark =
     typeof window.matchMedia === 'function' &&
     window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const initial =
-    saved === 'light' || saved === 'dark'
-      ? saved
-      : prefersDark
-        ? 'dark'
-        : 'light';
+  const initial = saved === 'light' || saved === 'dark' ? saved : prefersDark ? 'dark' : 'light';
   applyTheme(initial);
 }
 
 export function toggleTheme(): void {
-  applyTheme(theme() === 'light' ? 'dark' : 'light');
+  applyTheme(themeSignal() === 'light' ? 'dark' : 'light');
 }
 
-export { theme };
+export const theme: Accessor<ThemeMode> = themeSignal;

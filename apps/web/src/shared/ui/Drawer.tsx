@@ -23,9 +23,7 @@ export function Drawer(props: {
       return;
     }
     if (event.key !== 'Tab' || !drawer) return;
-    const elements = Array.from(
-      drawer.querySelectorAll<HTMLElement>(focusableSelector),
-    );
+    const elements = Array.from(drawer.querySelectorAll<HTMLElement>(focusableSelector));
     const first = elements[0];
     const last = elements.at(-1);
     if (!elements.includes(document.activeElement as HTMLElement)) {
@@ -43,9 +41,7 @@ export function Drawer(props: {
     if (!props.open) return;
     previousFocus = document.activeElement as HTMLElement | null;
     document.addEventListener('keydown', onKeyDown);
-    queueMicrotask(() =>
-      drawer?.querySelector<HTMLElement>(focusableSelector)?.focus(),
-    );
+    queueMicrotask(() => drawer?.querySelector<HTMLElement>(focusableSelector)?.focus());
     onCleanup(() => {
       document.removeEventListener('keydown', onKeyDown);
       previousFocus?.focus();
@@ -56,9 +52,7 @@ export function Drawer(props: {
       <Portal>
         <div
           class="drawer-backdrop"
-          onMouseDown={(event) =>
-            event.target === event.currentTarget && props.onClose()
-          }
+          onMouseDown={(event) => event.target === event.currentTarget && props.onClose()}
         >
           <aside
             ref={drawer}

@@ -1,20 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { mapAppError } from './app-error';
-import {
-  formatDateJakarta,
-  formatNumber,
-  formatRupiah,
-  formatTimeJakarta,
-} from './format';
+import { formatDateJakarta, formatNumber, formatRupiah, formatTimeJakarta } from './format';
 import { canTransitionOrder } from './order-status';
 import { buildReceipt } from './receipt';
 import { validateVoucher, type VoucherInput } from './voucher';
-import {
-  contrastRatio,
-  getContrastText,
-  hasWcagAAContrast,
-  parseHexColor,
-} from './color';
+import { contrastRatio, getContrastText, hasWcagAAContrast, parseHexColor } from './color';
 
 describe('formatters', () => {
   it('formats integer rupiah and Indonesian numbers', () => {
@@ -51,32 +41,24 @@ describe('voucher validation', () => {
       valid: true,
       discount: 5000,
     });
-    expect(
-      validateVoucher(
-        { ...activeVoucher, type: 'nominal', value: 4000 },
-        50000,
-        now,
-      ),
-    ).toEqual({ valid: true, discount: 4000 });
+    expect(validateVoucher({ ...activeVoucher, type: 'nominal', value: 4000 }, 50000, now)).toEqual(
+      { valid: true, discount: 4000 }
+    );
   });
 
   it('returns specific failure reasons', () => {
     expect(validateVoucher(null, 50000, now)).toMatchObject({
       reason: 'VOUCHER_NOT_FOUND',
     });
+    expect(validateVoucher({ ...activeVoucher, isActive: false }, 50000, now)).toMatchObject({
+      reason: 'VOUCHER_INACTIVE',
+    });
     expect(
-      validateVoucher({ ...activeVoucher, isActive: false }, 50000, now),
-    ).toMatchObject({ reason: 'VOUCHER_INACTIVE' });
-    expect(
-      validateVoucher(
-        { ...activeVoucher, validUntil: '2026-10-02T00:00:00Z' },
-        50000,
-        now,
-      ),
+      validateVoucher({ ...activeVoucher, validUntil: '2026-10-02T00:00:00Z' }, 50000, now)
     ).toMatchObject({ reason: 'VOUCHER_EXPIRED' });
-    expect(
-      validateVoucher({ ...activeVoucher, usedCount: 10 }, 50000, now),
-    ).toMatchObject({ reason: 'VOUCHER_QUOTA_EXCEEDED' });
+    expect(validateVoucher({ ...activeVoucher, usedCount: 10 }, 50000, now)).toMatchObject({
+      reason: 'VOUCHER_QUOTA_EXCEEDED',
+    });
     expect(validateVoucher(activeVoucher, 10000, now)).toMatchObject({
       reason: 'VOUCHER_MINIMUM_NOT_MET',
     });
@@ -151,25 +133,20 @@ describe('ESC/POS receipt', () => {
     footer: 'Sampai jumpa',
   };
 
-  it.each([58, 80] as const)(
-    'builds %s mm receipt bytes in chunks no larger than 100',
-    (width) => {
-      const chunks = buildReceipt(receipt, width, true);
-      const bytes = new Uint8Array(
-        chunks.reduce((size, chunk) => size + chunk.length, 0),
-      );
-      let offset = 0;
-      for (const chunk of chunks) {
-        expect(chunk.length).toBeLessThanOrEqual(100);
-        bytes.set(chunk, offset);
-        offset += chunk.length;
-      }
-      const text = new TextDecoder().decode(bytes);
-      expect(text).toContain('JOKGER Coffee');
-      expect(text).toContain('JKG-20261008-0001');
-      expect(text).toContain('TOTAL');
-      expect(text).toContain('*** REPRINT ***');
-      expect(text).toContain('\u001dV');
-    },
-  );
+  it.each([58, 80] as const)('builds %s mm receipt bytes in chunks no larger than 100', (width) => {
+    const chunks = buildReceipt(receipt, width, true);
+    const bytes = new Uint8Array(chunks.reduce((size, chunk) => size + chunk.length, 0));
+    let offset = 0;
+    for (const chunk of chunks) {
+      expect(chunk.length).toBeLessThanOrEqual(100);
+      bytes.set(chunk, offset);
+      offset += chunk.length;
+    }
+    const text = new TextDecoder().decode(bytes);
+    expect(text).toContain('JOKGER Coffee');
+    expect(text).toContain('JKG-20261008-0001');
+    expect(text).toContain('TOTAL');
+    expect(text).toContain('*** REPRINT ***');
+    expect(text).toContain('\u001dV');
+  });
 });

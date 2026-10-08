@@ -27,7 +27,7 @@ export type VoucherValidation =
 export function validateVoucher(
   voucher: VoucherInput | null,
   subtotal: number,
-  now = new Date(),
+  now = new Date()
 ): VoucherValidation {
   if (!Number.isSafeInteger(subtotal) || subtotal < 0)
     return { valid: false, reason: 'VOUCHER_INVALID' };
@@ -57,8 +57,7 @@ export function validateVoucher(
   if (voucher.totalQuota != null && voucher.usedCount >= voucher.totalQuota) {
     return { valid: false, reason: 'VOUCHER_QUOTA_EXCEEDED' };
   }
-  if (subtotal < voucher.minSubtotal)
-    return { valid: false, reason: 'VOUCHER_MINIMUM_NOT_MET' };
+  if (subtotal < voucher.minSubtotal) return { valid: false, reason: 'VOUCHER_MINIMUM_NOT_MET' };
   if (!Number.isSafeInteger(voucher.value) || voucher.value <= 0) {
     return { valid: false, reason: 'VOUCHER_INVALID' };
   }
@@ -66,7 +65,7 @@ export function validateVoucher(
     voucher.type === 'percent'
       ? Math.min(
           Number((BigInt(subtotal) * BigInt(voucher.value) + 50n) / 100n),
-          voucher.maxDiscount ?? subtotal,
+          voucher.maxDiscount ?? subtotal
         )
       : Math.min(voucher.value, subtotal);
   return { valid: true, discount };

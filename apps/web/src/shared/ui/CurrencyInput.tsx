@@ -1,4 +1,4 @@
-import { createSignal, createEffect, splitProps, untrack } from 'solid-js';
+import { createSignal, createEffect, Show, splitProps, untrack } from 'solid-js';
 import type { JSX } from 'solid-js';
 import { formatNumber } from '../lib/format';
 
@@ -9,23 +9,12 @@ export function CurrencyInput(
     onValueChange: (value: number) => void;
     error?: string;
     id?: string;
-  } & Omit<
-    JSX.InputHTMLAttributes<HTMLInputElement>,
-    'value' | 'onInput' | 'type'
-  >,
+  } & Omit<JSX.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onInput' | 'type'>
 ) {
-  const [local, rest] = splitProps(props, [
-    'label',
-    'value',
-    'onValueChange',
-    'error',
-    'id',
-  ]);
+  const [local, rest] = splitProps(props, ['label', 'value', 'onValueChange', 'error', 'id']);
   const [focused, setFocused] = createSignal(false);
   const [text, setText] = createSignal(untrack(() => String(local.value)));
-  const id =
-    untrack(() => local.id) ??
-    `currency-${Math.random().toString(36).slice(2, 9)}`;
+  const id = untrack(() => local.id) ?? `currency-${Math.random().toString(36).slice(2, 9)}`;
   createEffect(() => {
     if (!focused()) setText(String(local.value));
   });
@@ -59,15 +48,11 @@ export function CurrencyInput(
         onInput={(event) => input(event.currentTarget.value)}
         onBlur={() => setFocused(false)}
       />
-      {local.error && (
-        <span
-          id={`${id}-error`}
-          class="field__message field__message--error"
-          role="alert"
-        >
+      <Show when={local.error}>
+        <span id={`${id}-error`} class="field__message field__message--error" role="alert">
           {local.error}
         </span>
-      )}
+      </Show>
     </div>
   );
 }

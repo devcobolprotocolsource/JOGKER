@@ -24,23 +24,16 @@ export function parseHexColor(value: string): RGBColor | null {
 
 function linearize(channel: number): number {
   const normalized = channel / 255;
-  return normalized <= 0.04045
-    ? normalized / 12.92
-    : ((normalized + 0.055) / 1.055) ** 2.4;
+  return normalized <= 0.04045 ? normalized / 12.92 : ((normalized + 0.055) / 1.055) ** 2.4;
 }
 
 function luminance(color: RGBColor): number {
   return (
-    0.2126 * linearize(color.red) +
-    0.7152 * linearize(color.green) +
-    0.0722 * linearize(color.blue)
+    0.2126 * linearize(color.red) + 0.7152 * linearize(color.green) + 0.0722 * linearize(color.blue)
   );
 }
 
-export function contrastRatio(
-  foreground: string,
-  background: string,
-): number | null {
+export function contrastRatio(foreground: string, background: string): number | null {
   const foregroundColor = parseHexColor(foreground);
   const backgroundColor = parseHexColor(background);
   if (!foregroundColor || !backgroundColor) return null;
@@ -49,11 +42,7 @@ export function contrastRatio(
   return (Math.max(first, second) + 0.05) / (Math.min(first, second) + 0.05);
 }
 
-export function hasWcagAAContrast(
-  foreground: string,
-  background: string,
-  minimum = 4.5,
-): boolean {
+export function hasWcagAAContrast(foreground: string, background: string, minimum = 4.5): boolean {
   const ratio = contrastRatio(foreground, background);
   return ratio !== null && ratio >= minimum;
 }

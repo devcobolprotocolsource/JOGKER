@@ -13,10 +13,7 @@ type Status =
   | 'rejected'
   | 'open'
   | 'closed';
-const statusInfo: Record<
-  Status,
-  { label: string; variant: string; icon: typeof Check }
-> = {
+const statusInfo: Record<Status, { label: string; variant: string; icon: typeof Check }> = {
   new: { label: strings.sharedUi.status.new, variant: 'info', icon: CircleDot },
   processing: {
     label: strings.sharedUi.status.processing,

@@ -43,9 +43,7 @@ interface LoginAttempts {
 function readAttempts(): LoginAttempts {
   try {
     const value = localStorage.getItem(ATTEMPT_KEY);
-    return value
-      ? (JSON.parse(value) as LoginAttempts)
-      : { count: 0, lockedUntil: 0 };
+    return value ? (JSON.parse(value) as LoginAttempts) : { count: 0, lockedUntil: 0 };
   } catch {
     return { count: 0, lockedUntil: 0 };
   }
@@ -65,8 +63,7 @@ export function loginLockoutSeconds(now = Date.now()): number {
 
 function recordFailedLogin(): void {
   const attempts = readAttempts();
-  const nextCount =
-    attempts.lockedUntil > Date.now() ? attempts.count : attempts.count + 1;
+  const nextCount = attempts.lockedUntil > Date.now() ? attempts.count : attempts.count + 1;
   writeAttempts({
     count: nextCount >= MAX_ATTEMPTS ? 0 : nextCount,
     lockedUntil: nextCount >= MAX_ATTEMPTS ? Date.now() + LOCKOUT_DURATION : 0,
@@ -147,7 +144,7 @@ export async function initializeSession(): Promise<void> {
       const { data: listener } = client.auth.onAuthStateChange(
         (_event: AuthChangeEvent, authSession) => {
           queueMicrotask(() => void loadProfile(authSession));
-        },
+        }
       );
       authSubscription = listener.subscription;
     }
@@ -164,10 +161,9 @@ export async function initializeSession(): Promise<void> {
 
 export async function signIn(
   email: string,
-  password: string,
+  password: string
 ): Promise<{ ok: boolean; message?: string }> {
-  if (loginLockoutSeconds() > 0)
-    return { ok: false, message: strings.errors.REQUEST_TIMEOUT };
+  if (loginLockoutSeconds() > 0) return { ok: false, message: strings.errors.REQUEST_TIMEOUT };
   try {
     const { data, error } = await getSupabaseClient().auth.signInWithPassword({
       email,
@@ -189,8 +185,7 @@ export async function signIn(
 
 export async function requestPasswordReset(email: string): Promise<boolean> {
   try {
-    const { error } =
-      await getSupabaseClient().auth.resetPasswordForEmail(email);
+    const { error } = await getSupabaseClient().auth.resetPasswordForEmail(email);
     return !error;
   } catch {
     return false;

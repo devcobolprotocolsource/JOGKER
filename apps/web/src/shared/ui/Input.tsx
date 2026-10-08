@@ -10,19 +10,10 @@ export function Input(
     hint?: string;
     icon?: Component<{ size?: number; 'aria-hidden'?: boolean }>;
     class?: string;
-  } & JSX.InputHTMLAttributes<HTMLInputElement>,
+  } & JSX.InputHTMLAttributes<HTMLInputElement>
 ) {
-  const [local, rest] = splitProps(props, [
-    'label',
-    'error',
-    'hint',
-    'icon',
-    'class',
-    'id',
-  ]);
-  const id =
-    untrack(() => local.id) ??
-    `input-${Math.random().toString(36).slice(2, 9)}`;
+  const [local, rest] = splitProps(props, ['label', 'error', 'hint', 'icon', 'class', 'id']);
+  const id = untrack(() => local.id) ?? `input-${Math.random().toString(36).slice(2, 9)}`;
   const messageId = `${id}-message`;
   return (
     <div class={`field ${local.class ?? ''}`}>

@@ -9,11 +9,7 @@ export function Banner(props: {
   active?: boolean;
 }) {
   const icon = () =>
-    props.variant === 'info'
-      ? Info
-      : props.variant === 'warning'
-        ? TriangleAlert
-        : CircleAlert;
+    props.variant === 'info' ? Info : props.variant === 'warning' ? TriangleAlert : CircleAlert;
   return (
     <Show when={props.active !== false}>
       <div

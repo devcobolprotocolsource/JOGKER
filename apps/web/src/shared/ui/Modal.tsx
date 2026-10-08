@@ -24,9 +24,7 @@ export function Modal(props: {
       props.onClose();
     }
     if (event.key !== 'Tab' || !dialog) return;
-    const elements = Array.from(
-      dialog.querySelectorAll<HTMLElement>(focusableSelector),
-    );
+    const elements = Array.from(dialog.querySelectorAll<HTMLElement>(focusableSelector));
     const first = elements[0];
     const last = elements.at(-1);
     if (!elements.includes(document.activeElement as HTMLElement)) {
@@ -46,9 +44,7 @@ export function Modal(props: {
     if (!props.open) return;
     previousFocus = document.activeElement as HTMLElement | null;
     document.addEventListener('keydown', onKeyDown);
-    queueMicrotask(() =>
-      dialog?.querySelector<HTMLElement>(focusableSelector)?.focus(),
-    );
+    queueMicrotask(() => dialog?.querySelector<HTMLElement>(focusableSelector)?.focus());
     onCleanup(() => {
       document.removeEventListener('keydown', onKeyDown);
       previousFocus?.focus();

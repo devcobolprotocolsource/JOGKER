@@ -1,5 +1,4 @@
-export type OrderStatus =
-  'new' | 'processing' | 'ready' | 'completed' | 'cancelled';
+export type OrderStatus = 'new' | 'processing' | 'ready' | 'completed' | 'cancelled';
 
 const validTransitions: Record<OrderStatus, readonly OrderStatus[]> = {
   new: ['processing', 'cancelled'],
@@ -9,9 +8,6 @@ const validTransitions: Record<OrderStatus, readonly OrderStatus[]> = {
   cancelled: [],
 };
 
-export function canTransitionOrder(
-  from: OrderStatus,
-  to: OrderStatus,
-): boolean {
+export function canTransitionOrder(from: OrderStatus, to: OrderStatus): boolean {
   return validTransitions[from].includes(to);
 }

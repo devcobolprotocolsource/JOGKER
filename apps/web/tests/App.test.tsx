@@ -8,9 +8,7 @@ describe('App', () => {
     render(() => <App />);
 
     await waitFor(() => {
-      expect(
-        screen.getByRole('heading', { name: 'Masuk ke JOKGER' }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Masuk ke JOKGER' })).toBeInTheDocument();
     });
   });
 });
@@ -21,11 +19,8 @@ describe('loginSchema', () => {
       loginSchema.safeParse({
         email: 'staff@example.com',
         password: 'coffee-pass-20',
-      }).success,
+      }).success
     ).toBe(true);
-    expect(
-      loginSchema.safeParse({ email: 'not-an-email', password: 'short' })
-        .success,
-    ).toBe(false);
+    expect(loginSchema.safeParse({ email: 'not-an-email', password: 'short' }).success).toBe(false);
   });
 });

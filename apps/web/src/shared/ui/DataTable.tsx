@@ -42,9 +42,7 @@ export function DataTable<Row>(props: {
   const allSelected = createMemo(
     () =>
       props.rows.length > 0 &&
-      props.rows.every((row) =>
-        props.selectedKeys?.includes(props.rowKey(row)),
-      ),
+      props.rows.every((row) => props.selectedKeys?.includes(props.rowKey(row)))
   );
   function selectAll(checked: boolean) {
     props.onSelectionChange?.(checked ? props.rows.map(props.rowKey) : []);
@@ -83,19 +81,11 @@ export function DataTable<Row>(props: {
                 <th
                   scope="col"
                   aria-sort={
-                    sortKey() === column.key
-                      ? descending()
-                        ? 'descending'
-                        : 'ascending'
-                      : 'none'
+                    sortKey() === column.key ? (descending() ? 'descending' : 'ascending') : 'none'
                   }
                 >
                   <Show when={column.sortable} fallback={column.label}>
-                    <button
-                      class="table-sort"
-                      type="button"
-                      onClick={() => sort(column.key)}
-                    >
+                    <button class="table-sort" type="button" onClick={() => sort(column.key)}>
                       {column.label}
                       <Dynamic
                         component={
@@ -123,18 +113,10 @@ export function DataTable<Row>(props: {
                   <td>
                     <input
                       type="checkbox"
-                      aria-label={strings.sharedUi.selectRow.replace(
-                        '{id}',
-                        props.rowKey(row),
-                      )}
-                      checked={
-                        props.selectedKeys?.includes(props.rowKey(row)) ?? false
-                      }
+                      aria-label={strings.sharedUi.selectRow.replace('{id}', props.rowKey(row))}
+                      checked={props.selectedKeys?.includes(props.rowKey(row)) ?? false}
                       onChange={(event) =>
-                        toggleRow(
-                          props.rowKey(row),
-                          event.currentTarget.checked,
-                        )
+                        toggleRow(props.rowKey(row), event.currentTarget.checked)
                       }
                     />
                   </td>
@@ -145,9 +127,7 @@ export function DataTable<Row>(props: {
                       data-label={column.label}
                       class={`data-table__cell--${column.align ?? 'left'}`}
                     >
-                      {column.render
-                        ? column.render(row)
-                        : String(column.value(row))}
+                      {column.render ? column.render(row) : String(column.value(row))}
                     </td>
                   )}
                 </For>

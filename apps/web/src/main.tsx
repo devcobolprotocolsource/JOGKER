@@ -1,11 +1,13 @@
 import { render } from 'solid-js/web';
+import { Router } from '@solidjs/router';
 import { App } from './app/App';
-import './styles.css';
+import './index.css';
 
-const root = document.getElementById('root');
-
-if (!root) {
-  throw new Error('Elemen root tidak ditemukan.');
-}
-
-render(() => <App />, root);
+render(
+  () => (
+    <Router>
+      <App />
+    </Router>
+  ),
+  document.getElementById('root')!
+);

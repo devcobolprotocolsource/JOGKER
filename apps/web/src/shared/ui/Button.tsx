@@ -13,13 +13,7 @@ interface ButtonProps extends JSX.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 export function Button(props: ButtonProps) {
-  const [local, rest] = splitProps(props, [
-    'variant',
-    'size',
-    'loading',
-    'children',
-    'class',
-  ]);
+  const [local, rest] = splitProps(props, ['variant', 'size', 'loading', 'children', 'class']);
   return (
     <button
       {...rest}
@@ -27,9 +21,7 @@ export function Button(props: ButtonProps) {
       aria-busy={local.loading ? 'true' : undefined}
       disabled={local.loading || props.disabled}
     >
-      <span
-        class={`button__content ${local.loading ? 'button__content--hidden' : ''}`}
-      >
+      <span class={`button__content ${local.loading ? 'button__content--hidden' : ''}`}>
         {local.children}
       </span>
       <Show when={local.loading}>

@@ -1,4 +1,4 @@
-import { createEffect, createSignal, For } from 'solid-js';
+import { createEffect, createSignal, For, Show } from 'solid-js';
 
 export function Tabs(props: {
   label: string;
@@ -20,10 +20,7 @@ export function Tabs(props: {
         ? 0
         : event.key === 'End'
           ? props.tabs.length - 1
-          : (index +
-              (event.key === 'ArrowRight' ? 1 : -1) +
-              props.tabs.length) %
-            props.tabs.length;
+          : (index + (event.key === 'ArrowRight' ? 1 : -1) + props.tabs.length) % props.tabs.length;
     setFocusedIndex(next);
     tabButtons[next]?.focus();
     if (!props.tabs[next]?.disabled) props.onChange(props.tabs[next]!.value);
@@ -43,9 +40,9 @@ export function Tabs(props: {
             onKeyDown={(event) => moveFocus(event, index())}
           >
             {tab.label}
-            {tab.count !== undefined && (
+            <Show when={tab.count !== undefined}>
               <span class="tab-count">{tab.count}</span>
-            )}
+            </Show>
           </button>
         )}
       </For>

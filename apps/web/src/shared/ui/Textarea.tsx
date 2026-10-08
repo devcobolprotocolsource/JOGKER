@@ -8,19 +8,10 @@ export function Textarea(
     maxLength?: number;
     error?: string;
     id?: string;
-  } & JSX.TextareaHTMLAttributes<HTMLTextAreaElement>,
+  } & JSX.TextareaHTMLAttributes<HTMLTextAreaElement>
 ) {
-  const [local, rest] = splitProps(props, [
-    'label',
-    'value',
-    'maxLength',
-    'error',
-    'id',
-    'class',
-  ]);
-  const id =
-    untrack(() => local.id) ??
-    `textarea-${Math.random().toString(36).slice(2, 9)}`;
+  const [local, rest] = splitProps(props, ['label', 'value', 'maxLength', 'error', 'id', 'class']);
+  const id = untrack(() => local.id) ?? `textarea-${Math.random().toString(36).slice(2, 9)}`;
   return (
     <div class="field">
       <label class="field__label" for={id}>
@@ -35,11 +26,7 @@ export function Textarea(
       />
       <div class="field__bottom">
         <Show when={local.error}>
-          <span
-            id={`${id}-error`}
-            class="field__message field__message--error"
-            role="alert"
-          >
+          <span id={`${id}-error`} class="field__message field__message--error" role="alert">
             {local.error}
           </span>
         </Show>

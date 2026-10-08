@@ -5,14 +5,8 @@ import { strings } from '../strings';
 
 export function ThemeToggle() {
   const label = () =>
-    theme() === 'light'
-      ? strings.sharedUi.darkTheme
-      : strings.sharedUi.lightTheme;
+    theme() === 'light' ? strings.sharedUi.darkTheme : strings.sharedUi.lightTheme;
   return (
-    <IconButton
-      label={label()}
-      icon={theme() === 'light' ? Moon : Sun}
-      onClick={toggleTheme}
-    />
+    <IconButton label={label()} icon={theme() === 'light' ? Moon : Sun} onClick={toggleTheme} />
   );
 }

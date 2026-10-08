@@ -33,7 +33,9 @@ export function Toast(props: {
         <Dynamic component={icons[variant()]} size={20} aria-hidden={true} />
         <div>
           <strong>{props.title}</strong>
-          {props.message && <p>{props.message}</p>}
+          <Show when={props.message}>
+            <p>{props.message}</p>
+          </Show>
         </div>
         <button
           type="button"

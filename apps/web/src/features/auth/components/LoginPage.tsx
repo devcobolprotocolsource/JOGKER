@@ -2,15 +2,8 @@ import { createSignal, onCleanup, onMount, Show } from 'solid-js';
 import { useNavigate } from '@solidjs/router';
 import { KeyRound, Mail } from 'lucide-solid';
 import { loginSchema } from '../schemas/login';
-import {
-  loginLockoutSeconds,
-  requestPasswordReset,
-  signIn,
-} from '../../../shared/stores/session';
-import {
-  settingsState,
-  refreshSettings,
-} from '../../../shared/stores/settings';
+import { loginLockoutSeconds, requestPasswordReset, signIn } from '../../../shared/stores/session';
+import { settingsState, refreshSettings } from '../../../shared/stores/settings';
 import { refreshShift, shiftState } from '../../../shared/stores/shift';
 import { strings } from '../../../shared/strings';
 
@@ -26,10 +19,7 @@ export function LoginPage() {
 
   onMount(() => {
     void refreshSettings();
-    countdown = window.setInterval(
-      () => setLockedSeconds(loginLockoutSeconds()),
-      250,
-    );
+    countdown = window.setInterval(() => setLockedSeconds(loginLockoutSeconds()), 250);
   });
   onCleanup(() => {
     if (countdown !== undefined) window.clearInterval(countdown);
@@ -53,11 +43,8 @@ export function LoginPage() {
     if (!result.ok) {
       setError(
         loginLockoutSeconds() > 0
-          ? strings.auth.locked.replace(
-              '{seconds}',
-              String(loginLockoutSeconds()),
-            )
-          : strings.auth.invalidCredentials,
+          ? strings.auth.locked.replace('{seconds}', String(loginLockoutSeconds()))
+          : strings.auth.invalidCredentials
       );
       setLockedSeconds(loginLockoutSeconds());
       return;
@@ -76,7 +63,7 @@ export function LoginPage() {
     setNotice(
       (await requestPasswordReset(parsedEmail.data))
         ? strings.auth.resetSent
-        : strings.auth.resetFailed,
+        : strings.auth.resetFailed
     );
   }
 
@@ -91,15 +78,9 @@ export function LoginPage() {
             </div>
           }
         >
-          <img
-            class="login-logo"
-            src={settingsState.value?.logo_path ?? ''}
-            alt=""
-          />
+          <img class="login-logo" src={settingsState.value?.logo_path ?? ''} alt="" />
         </Show>
-        <p class="login-store-name">
-          {settingsState.value?.store_name ?? strings.appName}
-        </p>
+        <p class="login-store-name">{settingsState.value?.store_name ?? strings.appName}</p>
         <h1 id="login-title">{strings.auth.title}</h1>
         <form class="login-form" onSubmit={submit}>
           <label class="login-field">
@@ -138,16 +119,9 @@ export function LoginPage() {
               {notice()}
             </p>
           </Show>
-          <button
-            class="login-submit"
-            type="submit"
-            disabled={loading() || lockedSeconds() > 0}
-          >
+          <button class="login-submit" type="submit" disabled={loading() || lockedSeconds() > 0}>
             {lockedSeconds() > 0
-              ? strings.auth.locked.replace(
-                  '{seconds}',
-                  String(lockedSeconds()),
-                )
+              ? strings.auth.locked.replace('{seconds}', String(lockedSeconds()))
               : strings.auth.submit}
           </button>
           <button class="text-button" type="button" onClick={resetPassword}>

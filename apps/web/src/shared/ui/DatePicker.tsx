@@ -16,10 +16,11 @@ function jakartaDate(date: Date): string {
     month: '2-digit',
     day: '2-digit',
   }).formatToParts(date);
-  const values = Object.fromEntries(
-    parts.map((part) => [part.type, part.value]),
-  );
-  return `${values.year}-${values.month}-${values.day}`;
+  const values: Record<string, string> = {};
+  for (const part of parts) {
+    values[part.type] = part.value;
+  }
+  return `${values['year']}-${values['month']}-${values['day']}`;
 }
 
 function shiftDays(date: Date, days: number): Date {
@@ -35,8 +36,7 @@ export function DatePicker(props: {
   label: string;
 }) {
   const range = () => props.mode === 'range';
-  const from = () =>
-    range() ? (props.value as [string, string])[0] : (props.value as string);
+  const from = () => (range() ? (props.value as [string, string])[0] : (props.value as string));
   const to = () => (range() ? (props.value as [string, string])[1] : '');
   const today = createMemo(() => jakartaDate(new Date()));
   function applyPreset(preset: Preset) {
@@ -47,14 +47,10 @@ export function DatePicker(props: {
         : preset === '7days'
           ? shiftDays(current, -6)
           : preset === 'month'
-            ? new Date(
-                Date.UTC(current.getUTCFullYear(), current.getUTCMonth(), 1),
-              )
+            ? new Date(Date.UTC(current.getUTCFullYear(), current.getUTCMonth(), 1))
             : current;
     const end = preset === 'yesterday' ? shiftDays(current, -1) : current;
-    props.onChange(
-      range() ? [jakartaDate(start), jakartaDate(end)] : jakartaDate(end),
-    );
+    props.onChange(range() ? [jakartaDate(start), jakartaDate(end)] : jakartaDate(end));
   }
   return (
     <fieldset class="date-picker">
@@ -68,9 +64,7 @@ export function DatePicker(props: {
             value={from()}
             onInput={(event) =>
               props.onChange(
-                range()
-                  ? [event.currentTarget.value, to()]
-                  : event.currentTarget.value,
+                range() ? [event.currentTarget.value, to()] : event.currentTarget.value
               )
             }
           />
@@ -82,9 +76,7 @@ export function DatePicker(props: {
               class="input"
               type="date"
               value={to()}
-              onInput={(event) =>
-                props.onChange([from(), event.currentTarget.value])
-              }
+              onInput={(event) => props.onChange([from(), event.currentTarget.value])}
             />
           </label>
         </Show>
@@ -92,11 +84,7 @@ export function DatePicker(props: {
       <div class="date-picker__presets">
         <For each={Object.keys(labels) as Preset[]}>
           {(preset) => (
-            <button
-              class="text-button"
-              type="button"
-              onClick={() => applyPreset(preset)}
-            >
+            <button class="text-button" type="button" onClick={() => applyPreset(preset)}>
               {labels[preset]}
             </button>
           )}

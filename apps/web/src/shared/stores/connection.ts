@@ -1,8 +1,6 @@
 import { createSignal } from 'solid-js';
 
-const [online, setOnline] = createSignal(
-  typeof navigator === 'undefined' || navigator.onLine,
-);
+const [online, setOnline] = createSignal(typeof navigator === 'undefined' || navigator.onLine);
 
 export function initializeConnection(): () => void {
   const markOnline = () => setOnline(true);

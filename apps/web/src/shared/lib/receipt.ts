@@ -52,9 +52,7 @@ function cleanText(value: string): string {
 
 function columns(text: string, width: number): string {
   const sanitized = cleanText(text);
-  return sanitized.length > width
-    ? `${sanitized.slice(0, width - 3)}...`
-    : sanitized;
+  return sanitized.length > width ? `${sanitized.slice(0, width - 3)}...` : sanitized;
 }
 
 function moneyRow(label: string, amount: number, width: number): string {
@@ -67,7 +65,7 @@ function moneyRow(label: string, amount: number, width: number): string {
 export function buildReceipt(
   data: ReceiptData,
   paperWidth: PaperWidth,
-  reprint = false,
+  reprint = false
 ): Uint8Array[] {
   const columnWidth = paperWidth === 58 ? 32 : 48;
   const lines: string[] = [
@@ -82,7 +80,7 @@ export function buildReceipt(
   if (reprint) lines.push('*** REPRINT ***');
   lines.push(columns(data.orderNo, columnWidth));
   lines.push(
-    `${formatTimeJakarta(data.createdAt)}${data.tableLabel ? `  ${cleanText(data.tableLabel)}` : ''}`,
+    `${formatTimeJakarta(data.createdAt)}${data.tableLabel ? `  ${cleanText(data.tableLabel)}` : ''}`
   );
   lines.push('-'.repeat(columnWidth));
   lines.push(String.fromCharCode(ESC, 0x61, 0x00));
@@ -90,8 +88,7 @@ export function buildReceipt(
   for (const line of data.lines) {
     lines.push(columns(line.name, columnWidth));
     if (line.modifiers)
-      for (const modifier of line.modifiers)
-        lines.push(columns(`  + ${modifier}`, columnWidth));
+      for (const modifier of line.modifiers) lines.push(columns(`  + ${modifier}`, columnWidth));
     lines.push(moneyRow(`${line.quantity} x`, line.lineTotal, columnWidth));
   }
 
@@ -102,21 +99,18 @@ export function buildReceipt(
       moneyRow(
         data.voucherCode ? `Diskon ${data.voucherCode}` : 'Diskon',
         -data.discountTotal,
-        columnWidth,
-      ),
+        columnWidth
+      )
     );
   }
-  if (data.serviceAmount > 0)
-    lines.push(moneyRow('Layanan', data.serviceAmount, columnWidth));
-  if (data.taxAmount > 0)
-    lines.push(moneyRow('PB1', data.taxAmount, columnWidth));
+  if (data.serviceAmount > 0) lines.push(moneyRow('Layanan', data.serviceAmount, columnWidth));
+  if (data.taxAmount > 0) lines.push(moneyRow('PB1', data.taxAmount, columnWidth));
   if (data.roundingAmount !== 0)
     lines.push(moneyRow('Pembulatan', data.roundingAmount, columnWidth));
   lines.push(moneyRow('TOTAL', data.grandTotal, columnWidth));
   for (const payment of data.payments)
     lines.push(moneyRow(payment.method, payment.amount, columnWidth));
-  if (data.change > 0)
-    lines.push(moneyRow('Kembalian', data.change, columnWidth));
+  if (data.change > 0) lines.push(moneyRow('Kembalian', data.change, columnWidth));
   lines.push('-'.repeat(columnWidth));
   if (data.footer) lines.push(columns(data.footer, columnWidth));
   lines.push('', '', String.fromCharCode(GS, 0x56, 0x00));

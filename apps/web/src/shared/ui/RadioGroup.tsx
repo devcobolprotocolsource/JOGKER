@@ -11,9 +11,7 @@ export function RadioGroup(props: {
   return (
     <fieldset class="radio-group">
       <legend class="field__label">{props.label}</legend>
-      <div
-        class={`radio-group__options radio-group__options--${props.orientation ?? 'vertical'}`}
-      >
+      <div class={`radio-group__options radio-group__options--${props.orientation ?? 'vertical'}`}>
         <For each={props.options}>
           {(option) => (
             <label class="radio-control">

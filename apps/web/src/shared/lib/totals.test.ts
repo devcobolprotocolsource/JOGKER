@@ -10,15 +10,11 @@ const settings = {
 describe('calculateTotals', () => {
   it('matches the server calculation order with modifier, voucher, service, and tax', () => {
     expect(
-      calculateTotals(
-        [{ unitPrice: 20000, quantity: 2, modifierPrices: [1000] }],
-        settings,
-        {
-          type: 'percent',
-          value: 10,
-          maxDiscount: 3000,
-        },
-      ),
+      calculateTotals([{ unitPrice: 20000, quantity: 2, modifierPrices: [1000] }], settings, {
+        type: 'percent',
+        value: 10,
+        maxDiscount: 3000,
+      })
     ).toEqual({
       subtotal: 42000,
       discountTotal: 3000,
@@ -38,8 +34,8 @@ describe('calculateTotals', () => {
           taxPercent: 0,
           roundingRule: 'nearest_100',
         },
-        { type: 'nominal', value: 500 },
-      ),
+        { type: 'nominal', value: 500 }
+      )
     ).toMatchObject({
       subtotal: 149,
       discountTotal: 149,
@@ -54,7 +50,7 @@ describe('calculateTotals', () => {
         servicePercent: 0,
         taxPercent: 0,
         roundingRule: 'up_100',
-      }),
+      })
     ).toMatchObject({ roundingAmount: 95, grandTotal: 200 });
   });
 
@@ -64,22 +60,18 @@ describe('calculateTotals', () => {
         servicePercent: 0,
         taxPercent: 0,
         roundingRule: 'none',
-      }).grandTotal,
+      }).grandTotal
     ).toBe(0);
   });
 
   it('rejects invalid money, quantity, and percentage values', () => {
-    expect(() =>
-      calculateTotals([{ unitPrice: 1.5, quantity: 1 }], settings),
-    ).toThrow(RangeError);
-    expect(() =>
-      calculateTotals([{ unitPrice: 1, quantity: 0 }], settings),
-    ).toThrow(RangeError);
+    expect(() => calculateTotals([{ unitPrice: 1.5, quantity: 1 }], settings)).toThrow(RangeError);
+    expect(() => calculateTotals([{ unitPrice: 1, quantity: 0 }], settings)).toThrow(RangeError);
     expect(() =>
       calculateTotals([{ unitPrice: 1, quantity: 1 }], {
         ...settings,
         taxPercent: 101,
-      }),
+      })
     ).toThrow(RangeError);
   });
 });

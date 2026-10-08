@@ -1,0 +1,48 @@
+import { describe, expect, it } from 'vitest';
+import { addCartLine, cartItemTotal, cartTotals, setCartQuantity } from './cart';
+import type { MenuItem } from '../state/cart';
+
+const menu: MenuItem = {
+  id: 'menu-latte',
+  category_id: 'coffee',
+  name: 'Latte',
+  description: null,
+  price: 22000,
+  image_path: null,
+  is_available: true,
+  groups: [],
+};
+
+describe('POS cart logic', () => {
+  it('merges identical menu/modifier/note lines and preserves distinct notes', () => {
+    const one = addCartLine([], menu);
+    const merged = addCartLine(one, menu);
+    expect(merged).toHaveLength(1);
+    expect(merged[0]?.quantity).toBe(2);
+    expect(addCartLine(merged, menu, [], 'Tanpa es')).toHaveLength(2);
+  });
+
+  it('updates quantities or removes a line below one', () => {
+    const cart = addCartLine([], menu);
+    const key = cart[0]!.key;
+    expect(setCartQuantity(cart, key, 4)[0]?.quantity).toBe(4);
+    expect(setCartQuantity(cart, key, 0)).toEqual([]);
+  });
+
+  it('calculates line and order totals with integer rupiah settings', () => {
+    const cart = addCartLine([], menu);
+    expect(cartItemTotal(cart[0]!)).toBe(22000);
+    expect(
+      cartTotals(cart, {
+        servicePercent: 10,
+        taxPercent: 10,
+        roundingRule: 'none',
+      })
+    ).toMatchObject({
+      subtotal: 22000,
+      serviceAmount: 2200,
+      taxAmount: 2420,
+      grandTotal: 26620,
+    });
+  });
+});

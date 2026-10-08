@@ -1,0 +1,200 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-brand: #6f4e37;
+    --color-brand-hover: #5a3d2c;
+    --color-brand-contrast: #ffffff;
+    --color-accent: #f5e6d3;
+    --color-bg: #faf7f3;
+    --color-surface: #ffffff;
+    --color-surface-raised: #ffffff;
+    --color-border: #e7ded4;
+    --color-text: #1f1813;
+    --color-text-muted: #6b5d52;
+    --color-success: #2e7d4f;
+    --color-warning: #b26a00;
+    --color-danger: #b42318;
+    --color-info: #1d5fa8;
+    --font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  .dark {
+    --color-brand: #c9a96a;
+    --color-brand-hover: #b8955a;
+    --color-brand-contrast: #1b1410;
+    --color-accent: #3a3029;
+    --color-bg: #17120e;
+    --color-surface: #221b16;
+    --color-surface-raised: #2b231d;
+    --color-border: #3a3029;
+    --color-text: #f3ece4;
+    --color-text-muted: #b5a89b;
+    --color-success: #4ade80;
+    --color-warning: #fbbf24;
+    --color-danger: #f87171;
+    --color-info: #60a5fa;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-family);
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--color-brand);
+    color: var(--color-brand-contrast);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 font-semibold rounded-control transition-colors duration-150;
+    @apply min-h-[44px] min-w-[44px];
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-primary {
+    @apply btn bg-brand text-brand-contrast hover:bg-brand-hover;
+  }
+
+  .btn-secondary {
+    @apply btn bg-surface border border-border text-text hover:bg-accent;
+  }
+
+  .btn-ghost {
+    @apply btn bg-transparent text-text hover:bg-accent;
+  }
+
+  .btn-danger {
+    @apply btn bg-danger text-white hover:bg-red-700;
+  }
+
+  .btn-sm {
+    @apply px-3 py-1.5 text-sm;
+  }
+
+  .btn-md {
+    @apply px-4 py-2 text-btn-label;
+  }
+
+  .btn-lg {
+    @apply px-6 py-3 text-lg;
+  }
+
+  .input {
+    @apply w-full rounded-control border border-border bg-surface px-3 py-2.5 text-text;
+    @apply placeholder:text-text-muted;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:border-transparent;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply min-h-[44px];
+  }
+
+  .label {
+    @apply block text-sm font-medium text-text mb-1.5;
+  }
+
+  .card {
+    @apply bg-surface rounded-card border border-border;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1.5 rounded-badge px-2.5 py-0.5 text-xs font-medium;
+  }
+
+  .table-container {
+    @apply overflow-x-auto;
+  }
+
+  .table {
+    @apply w-full border-collapse text-sm;
+  }
+
+  .table th {
+    @apply text-left font-semibold text-text-muted py-2 px-3 border-b border-border;
+  }
+
+  .table td {
+    @apply py-2 px-3 border-b border-border;
+  }
+
+  .table tbody tr:last-child td {
+    @apply border-b-0;
+  }
+
+  .table tbody tr:hover {
+    background-color: color-mix(in srgb, var(--color-accent) 50%, transparent);
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border) transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: var(--color-border);
+    border-radius: 3px;
+  }
+
+  .skip-link {
+    @apply absolute -top-10 left-0 bg-brand text-brand-contrast px-4 py-2 z-50 transition-all;
+  }
+
+  .skip-link:focus {
+    @apply top-0;
+  }
+}

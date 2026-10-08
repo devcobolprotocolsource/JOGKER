@@ -15,13 +15,10 @@ export function Combobox(props: {
   const [query, setQuery] = createSignal('');
   const visible = createMemo(() =>
     props.options.filter((option) =>
-      option.label
-        .toLocaleLowerCase('id-ID')
-        .includes(query().toLocaleLowerCase('id-ID')),
-    ),
+      option.label.toLocaleLowerCase('id-ID').includes(query().toLocaleLowerCase('id-ID'))
+    )
   );
-  const selected = () =>
-    props.options.find((option) => option.value === props.value);
+  const selected = () => props.options.find((option) => option.value === props.value);
   function handleKeyDown(event: KeyboardEvent) {
     if (event.key === 'Escape') setOpen(false);
     if (event.key === 'ArrowDown') {
@@ -61,12 +58,7 @@ export function Combobox(props: {
               onKeyDown={handleKeyDown}
             />
           </label>
-          <ul
-            id={optionsId}
-            class="combobox__options"
-            role="listbox"
-            aria-label={props.label}
-          >
+          <ul id={optionsId} class="combobox__options" role="listbox" aria-label={props.label}>
             <For each={visible()}>
               {(option) => (
                 <li

@@ -1,5 +1,5 @@
 import { ChevronLeft, ChevronRight } from 'lucide-solid';
-import { For } from 'solid-js';
+import { For, Show } from 'solid-js';
 import { strings } from '../strings';
 
 export function Pagination(props: {
@@ -11,8 +11,7 @@ export function Pagination(props: {
   pageSizes?: number[];
 }) {
   const pages = () => Math.max(1, Math.ceil(props.total / props.pageSize));
-  const start = () =>
-    props.total === 0 ? 0 : (props.page - 1) * props.pageSize + 1;
+  const start = () => (props.total === 0 ? 0 : (props.page - 1) * props.pageSize + 1);
   const end = () => Math.min(props.page * props.pageSize, props.total);
   return (
     <nav class="pagination" aria-label={strings.sharedUi.pageNavigation}>
@@ -22,22 +21,20 @@ export function Pagination(props: {
           .replace('{end}', String(end()))
           .replace('{total}', String(props.total))}
       </span>
-      {props.onPageSizeChange && (
+      <Show when={props.onPageSizeChange}>
         <label>
           {strings.sharedUi.rows}
           <select
             class="input pagination__size"
             value={props.pageSize}
-            onChange={(event) =>
-              props.onPageSizeChange?.(Number(event.currentTarget.value))
-            }
+            onChange={(event) => props.onPageSizeChange?.(Number(event.currentTarget.value))}
           >
             <For each={props.pageSizes ?? [25, 50, 100]}>
               {(size) => <option value={size}>{size}</option>}
             </For>
           </select>
         </label>
-      )}
+      </Show>
       <button
         type="button"
         aria-label={strings.sharedUi.previousPage}

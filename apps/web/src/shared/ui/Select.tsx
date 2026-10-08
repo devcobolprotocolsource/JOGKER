@@ -7,18 +7,10 @@ export function Select(
     options: { value: string; label: string; disabled?: boolean }[];
     error?: string;
     id?: string;
-  } & JSX.SelectHTMLAttributes<HTMLSelectElement>,
+  } & JSX.SelectHTMLAttributes<HTMLSelectElement>
 ) {
-  const [local, rest] = splitProps(props, [
-    'label',
-    'options',
-    'error',
-    'id',
-    'class',
-  ]);
-  const id =
-    untrack(() => local.id) ??
-    `select-${Math.random().toString(36).slice(2, 9)}`;
+  const [local, rest] = splitProps(props, ['label', 'options', 'error', 'id', 'class']);
+  const id = untrack(() => local.id) ?? `select-${Math.random().toString(36).slice(2, 9)}`;
   return (
     <div class="field">
       <label class="field__label" for={id}>
@@ -40,11 +32,7 @@ export function Select(
         </For>
       </select>
       <Show when={local.error}>
-        <span
-          id={`${id}-error`}
-          class="field__message field__message--error"
-          role="alert"
-        >
+        <span id={`${id}-error`} class="field__message field__message--error" role="alert">
           {local.error}
         </span>
       </Show>

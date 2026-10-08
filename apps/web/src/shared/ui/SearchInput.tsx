@@ -1,4 +1,4 @@
-import { createSignal, onCleanup, untrack } from 'solid-js';
+import { createSignal, onCleanup, Show, untrack } from 'solid-js';
 import { Search, X } from 'lucide-solid';
 import { strings } from '../strings';
 
@@ -28,13 +28,10 @@ export function SearchInput(props: {
           const nextValue = event.currentTarget.value;
           setValue(nextValue);
           if (timer !== undefined) window.clearTimeout(timer);
-          timer = window.setTimeout(
-            () => onSearch(nextValue.trim()),
-            debounceMs ?? 250,
-          );
+          timer = window.setTimeout(() => onSearch(nextValue.trim()), debounceMs ?? 250);
         }}
       />
-      {value() && (
+      <Show when={value()}>
         <button
           type="button"
           aria-label={strings.sharedUi.clearSearch}
@@ -46,7 +43,7 @@ export function SearchInput(props: {
         >
           <X size={18} aria-hidden={true} />
         </button>
-      )}
+      </Show>
     </label>
   );
 }

@@ -1,10 +1,6 @@
 import { strings } from '../strings';
 
-export function Skeleton(props: {
-  rows?: number;
-  class?: string;
-  label?: string;
-}) {
+export function Skeleton(props: { rows?: number; class?: string; label?: string }) {
   return (
     <div
       class={`skeleton-group ${props.class ?? ''}`}

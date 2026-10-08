@@ -16,9 +16,7 @@ export function RequireAuth(props: { children: JSX.Element }) {
     >
       <Show
         when={sessionState.userId}
-        fallback={
-          <Navigate href="/login" state={{ from: location.pathname }} />
-        }
+        fallback={<Navigate href="/login" state={{ from: location.pathname }} />}
       >
         {props.children}
       </Show>

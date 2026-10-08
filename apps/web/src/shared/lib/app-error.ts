@@ -27,10 +27,7 @@ export interface AppError {
 
 export function mapAppError(input: unknown): AppError {
   const message =
-    typeof input === 'object' && input !== null && 'message' in input
-      ? String(input.message)
-      : '';
-  const code =
-    message in strings.errors ? (message as AppErrorCode) : 'UNKNOWN';
+    typeof input === 'object' && input !== null && 'message' in input ? String(input.message) : '';
+  const code = message in strings.errors ? (message as AppErrorCode) : 'UNKNOWN';
   return { code, message: strings.errors[code] };
 }

@@ -11,13 +11,8 @@ export function formatRupiah(amount: number): string {
   }).format(amount);
 }
 
-export function formatNumber(
-  amount: number,
-  maximumFractionDigits = 3,
-): string {
-  return new Intl.NumberFormat('id-ID', { maximumFractionDigits }).format(
-    amount,
-  );
+export function formatNumber(amount: number, maximumFractionDigits = 3): string {
+  return new Intl.NumberFormat('id-ID', { maximumFractionDigits }).format(amount);
 }
 
 export function formatDateJakarta(value: string | Date): string {

@@ -1,11 +1,8 @@
 import { Route, Router, useNavigate } from '@solidjs/router';
 import { createEffect, lazy, onCleanup, onMount } from 'solid-js';
+import type { JSX } from 'solid-js';
 import { strings } from '../shared/strings';
-import {
-  initializeSession,
-  sessionState,
-  touchSessionActivity,
-} from '../shared/stores/session';
+import { initializeSession, sessionState, touchSessionActivity } from '../shared/stores/session';
 import { initializeConnection, online } from '../shared/stores/connection';
 import { refreshShift, shiftState } from '../shared/stores/shift';
 import { refreshSettings, settingsState } from '../shared/stores/settings';
@@ -18,12 +15,52 @@ import { initializeTheme } from '../shared/theme/theme';
 const LoginPage = lazy(() =>
   import('../features/auth/components/LoginPage').then((module) => ({
     default: module.LoginPage,
-  })),
+  }))
 );
 const PosPage = lazy(() =>
   import('../features/pos/components/PosPage').then((module) => ({
     default: module.PosPage,
-  })),
+  }))
+);
+const ShiftPage = lazy(() =>
+  import('../features/shift/components/ShiftPage').then((module) => ({
+    default: module.ShiftPage,
+  }))
+);
+const OrdersPage = lazy(() =>
+  import('../features/orders/components/OrdersPage').then((module) => ({
+    default: module.OrdersPage,
+  }))
+);
+const OrderDetailPage = lazy(() =>
+  import('../features/orders/components/OrderDetailPage').then((module) => ({
+    default: module.OrderDetailPage,
+  }))
+);
+const OpenBillPage = lazy(() =>
+  import('../features/open-bill/components/OpenBillPage').then((module) => ({
+    default: module.OpenBillPage,
+  }))
+);
+const MenuPage = lazy(() =>
+  import('../features/menu/components/MenuPage').then((module) => ({
+    default: module.MenuPage,
+  }))
+);
+const InventoryPage = lazy(() =>
+  import('../features/inventory/components/InventoryPage').then((module) => ({
+    default: module.InventoryPage,
+  }))
+);
+const StockOpnamePage = lazy(() =>
+  import('../features/inventory/components/StockOpnamePage').then((module) => ({
+    default: module.StockOpnamePage,
+  }))
+);
+const StockOpnameDetailPage = lazy(() =>
+  import('../features/inventory/components/StockOpnameDetailPage').then((module) => ({
+    default: module.StockOpnameDetailPage,
+  }))
 );
 
 export function App() {
@@ -41,6 +78,16 @@ export function App() {
       <Route path="/login" component={LoginPage} />
       <Route path="/403" component={ForbiddenRoute} />
       <Route
+        path="/pos/open-bill/:id"
+        component={() => (
+          <ProtectedPage>
+            <ApplicationShell>
+              <OpenBillPage />
+            </ApplicationShell>
+          </ProtectedPage>
+        )}
+      />
+      <Route
         path="/pos"
         component={() => (
           <ProtectedPage>
@@ -55,7 +102,67 @@ export function App() {
         component={() => (
           <ProtectedPage>
             <ApplicationShell>
-              <ShiftEntryPage />
+              <ShiftPage />
+            </ApplicationShell>
+          </ProtectedPage>
+        )}
+      />
+      <Route
+        path="/orders"
+        component={() => (
+          <ProtectedPage>
+            <ApplicationShell>
+              <OrdersPage />
+            </ApplicationShell>
+          </ProtectedPage>
+        )}
+      />
+      <Route
+        path="/orders/:id"
+        component={() => (
+          <ProtectedPage>
+            <ApplicationShell>
+              <OrderDetailPage />
+            </ApplicationShell>
+          </ProtectedPage>
+        )}
+      />
+      <Route
+        path="/menu"
+        component={() => (
+          <ProtectedPage>
+            <ApplicationShell>
+              <MenuPage />
+            </ApplicationShell>
+          </ProtectedPage>
+        )}
+      />
+      <Route
+        path="/inventory/opname/:id"
+        component={() => (
+          <ProtectedPage>
+            <ApplicationShell>
+              <StockOpnameDetailPage />
+            </ApplicationShell>
+          </ProtectedPage>
+        )}
+      />
+      <Route
+        path="/inventory/opname"
+        component={() => (
+          <ProtectedPage>
+            <ApplicationShell>
+              <StockOpnamePage />
+            </ApplicationShell>
+          </ProtectedPage>
+        )}
+      />
+      <Route
+        path="/inventory"
+        component={() => (
+          <ProtectedPage>
+            <ApplicationShell>
+              <InventoryPage />
             </ApplicationShell>
           </ProtectedPage>
         )}
@@ -82,7 +189,7 @@ function RootRedirect() {
         navigate('/login', { replace: true });
       } else {
         void refreshShift().then(() =>
-          navigate(shiftState.active ? '/pos' : '/shift', { replace: true }),
+          navigate(shiftState.active ? '/pos' : '/shift', { replace: true })
         );
       }
     }
@@ -102,7 +209,7 @@ function ForbiddenRoute() {
   );
 }
 
-function ApplicationShell(props: { children: import('solid-js').JSX.Element }) {
+function ApplicationShell(props: { children: JSX.Element }) {
   const navigate = useNavigate();
   onMount(() => {
     void refreshShift();
@@ -110,28 +217,16 @@ function ApplicationShell(props: { children: import('solid-js').JSX.Element }) {
     touchSessionActivity();
   });
   return (
-    <div
-      class="app-shell"
-      onPointerDown={touchSessionActivity}
-      onKeyDown={touchSessionActivity}
-    >
+    <div class="app-shell" onPointerDown={touchSessionActivity} onKeyDown={touchSessionActivity}>
       <header class="app-header">
         <a class="app-brand" href="/pos" aria-label={strings.appName}>
           {settingsState.value?.store_name ?? strings.appName}
         </a>
         <div class="app-status">
-          <span
-            class="status-pill"
-            data-state={shiftState.active ? 'open' : 'closed'}
-          >
-            {shiftState.active
-              ? strings.shell.shiftOpen
-              : strings.shell.shiftClosed}
+          <span class="status-pill" data-state={shiftState.active ? 'open' : 'closed'}>
+            {shiftState.active ? strings.shell.shiftOpen : strings.shell.shiftClosed}
           </span>
-          <span
-            class="status-pill"
-            data-state={online() ? 'online' : 'offline'}
-          >
+          <span class="status-pill" data-state={online() ? 'online' : 'offline'}>
             <span class="status-dot" aria-hidden="true" />
             {online() ? strings.shell.online : strings.shell.offline}
           </span>
@@ -151,24 +246,14 @@ function ApplicationShell(props: { children: import('solid-js').JSX.Element }) {
       <div class="app-body">
         <nav class="app-nav" aria-label="Navigasi utama">
           <a href="/pos">{strings.shell.pos}</a>
+          <a href="/orders">{strings.orders.title}</a>
+          <a href="/menu">{strings.menu.title}</a>
+          <a href="/inventory">{strings.inventory.title}</a>
           <a href="/shift">{strings.shell.shift}</a>
         </nav>
         {props.children}
       </div>
     </div>
-  );
-}
-
-function ShiftEntryPage() {
-  const navigate = useNavigate();
-  onMount(() => {
-    if (shiftState.active) navigate('/pos', { replace: true });
-  });
-  return (
-    <main class="page-content">
-      <h1>{strings.shell.shift}</h1>
-      <p>{strings.pos.noShift}</p>
-    </main>
   );
 }
 

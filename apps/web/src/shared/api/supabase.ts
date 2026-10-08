@@ -1,11 +1,13 @@
+/// <reference types="vite/client" />
+
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
 let client: SupabaseClient | undefined;
 
 export function getSupabaseClient(): SupabaseClient {
   if (client) return client;
-  const url = import.meta.env.VITE_SUPABASE_URL;
-  const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+  const url = import.meta.env['VITE_SUPABASE_URL'];
+  const anonKey = import.meta.env['VITE_SUPABASE_ANON_KEY'];
   if (!url || !anonKey) throw new Error('SUPABASE_NOT_CONFIGURED');
   client = createClient(url, anonKey, {
     auth: {

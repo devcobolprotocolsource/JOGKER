@@ -41,10 +41,9 @@ export async function refreshSettings(): Promise<void> {
 }
 
 export async function saveSettings(value: Partial<StoreSettings>) {
-  const { data, error } = await getSupabaseClient().rpc(
-    'update_store_settings',
-    { p_settings: value },
-  );
+  const { data, error } = await getSupabaseClient().rpc('update_store_settings', {
+    p_settings: value,
+  });
   if (error) return { ok: false as const, error };
   setSettingsState('value', data as StoreSettings);
   return { ok: true as const, data };
