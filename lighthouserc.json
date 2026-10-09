@@ -1,9 +1,9 @@
 {
   "ci": {
     "collect": {
-      "url": ["http://localhost:3000/pos", "http://localhost:3000/orders"],
-      "startServerCommand": "pnpm --filter @jokger/web dev",
-      "startServerReadyPattern": "Local:.*3000",
+      "url": ["http://localhost:4173/login"],
+      "startServerCommand": "pnpm --filter @jokger/web preview --host 0.0.0.0",
+      "startServerReadyPattern": "Local:.*4173",
       "numberOfRuns": 1,
       "settings": {
         "formFactor": "mobile",

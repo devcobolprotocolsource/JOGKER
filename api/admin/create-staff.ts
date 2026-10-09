@@ -80,7 +80,8 @@ export default async function createStaff(
     });
   if (createError || !created.user) {
     response.status(createError?.status === 422 ? 400 : 500).json({
-      error: createError?.status === 422 ? 'INPUT_INVALID' : 'STAFF_CREATE_FAILED',
+      error:
+        createError?.status === 422 ? 'INPUT_INVALID' : 'STAFF_CREATE_FAILED',
     });
     return;
   }
@@ -93,6 +94,21 @@ export default async function createStaff(
   if (updateError) {
     await adminClient.auth.admin.deleteUser(created.user.id);
     response.status(500).json({ error: 'STAFF_PROFILE_FAILED' });
+    return;
+  }
+  const { error: auditError } = await adminClient.from('audit_logs').insert({
+    actor_id: authData.user.id,
+    action: 'staff.create',
+    entity: 'profile',
+    entity_id: created.user.id,
+    payload: {
+      email: created.user.email ?? parsed.data.email,
+      role: parsed.data.role,
+    },
+  });
+  if (auditError) {
+    await adminClient.auth.admin.deleteUser(created.user.id);
+    response.status(500).json({ error: 'STAFF_AUDIT_FAILED' });
     return;
   }
   response.status(201).json({

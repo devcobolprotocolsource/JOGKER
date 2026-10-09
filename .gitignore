@@ -8,3 +8,5 @@ test-results/
 !.env.example
 .vercel/
 supabase/.temp/
+.vercel
+.env*

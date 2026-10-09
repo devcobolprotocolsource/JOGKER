@@ -1,6 +1,6 @@
 import { Show, createSignal } from 'solid-js';
 import { Save, Upload, Check, AlertTriangle } from 'lucide-solid';
-import { Button, Card, Input, Select, Toast } from '../../../shared/ui';
+import { Button, Card, Input, Toast } from '../../../shared/ui';
 import { strings } from '../../../shared/strings';
 import { applyColorTokens, getContrastRatio } from '../../../shared/theme/theme';
 import { handleUpdateBranding, handleUploadLogo } from '../logic/settings';
@@ -23,8 +23,7 @@ export function BrandingPage() {
     const input = {
       primary_color: formData.get('primary_color') as string,
       accent_color: formData.get('accent_color') as string,
-      font_family: formData.get('font_family') as
-        'Inter' | 'Poppins' | 'Plus Jakarta Sans' | 'system-ui',
+      font_family: 'Inter' as const,
       logo_path: getSettingsState().settings?.logo_path ?? undefined,
     };
     const result = await handleUpdateBranding(input);
@@ -161,21 +160,6 @@ export function BrandingPage() {
               color1={currentSettings?.primary_color ?? '#6F4E37'}
               color2={currentSettings?.accent_color ?? '#F5E6D3'}
               textColor="black"
-            />
-          </div>
-
-          <div class="form-group">
-            <label>{strings.settings.fontFamily}</label>
-            <Select
-              label={strings.settings.fontFamily}
-              name="font_family"
-              options={[
-                { value: 'Inter', label: 'Inter' },
-                { value: 'Poppins', label: 'Poppins' },
-                { value: 'Plus Jakarta Sans', label: 'Plus Jakarta Sans' },
-                { value: 'system-ui', label: 'System UI' },
-              ]}
-              value={currentSettings?.font_family ?? 'Inter'}
             />
           </div>
 

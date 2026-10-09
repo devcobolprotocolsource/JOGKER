@@ -10,7 +10,7 @@ import {
   handleUploadLogo,
 } from '../logic/settings';
 import { getSettingsState } from '../state/settings';
-import { roundingRuleOptions, paperWidthOptions, fontFamilyOptions } from '../schemas/settings';
+import { roundingRuleOptions, paperWidthOptions } from '../schemas/settings';
 import type { SettingsInput } from '../schemas/settings';
 import { StaffPage } from './StaffPage';
 
@@ -66,8 +66,7 @@ export function SettingsPage() {
     const input = {
       primary_color: formData.get('primary_color') as string,
       accent_color: formData.get('accent_color') as string,
-      font_family: formData.get('font_family') as
-        'Inter' | 'Poppins' | 'Plus Jakarta Sans' | 'system-ui',
+      font_family: 'Inter' as const,
       logo_path: settingsState.settings?.logo_path ?? undefined,
     };
     const result = await handleUpdateBranding(input);
@@ -372,15 +371,6 @@ export function SettingsPage() {
                   color1={currentSettings()?.primary_color ?? '#6F4E37'}
                   color2={currentSettings()?.accent_color ?? '#F5E6D3'}
                   textColor="black"
-                />
-              </div>
-
-              <div class="form-group">
-                <Select
-                  name="font_family"
-                  label={strings.settings.fontFamily}
-                  options={[...fontFamilyOptions]}
-                  value={currentSettings()?.font_family ?? 'Inter'}
                 />
               </div>
 

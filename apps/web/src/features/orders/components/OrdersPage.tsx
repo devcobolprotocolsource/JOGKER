@@ -12,6 +12,7 @@ import {
   Tabs,
 } from '../../../shared/ui';
 import { strings } from '../../../shared/strings';
+import { useRealtime } from '../../../shared/hooks';
 import { canTransitionOrder } from '../../../shared/lib/order-status';
 import type { OrderStatus } from '../../../shared/lib/order-status';
 import { cancelOrder, changeOrderStatus, loadOrders, type OrderSummary } from '../api/orders';
@@ -75,6 +76,8 @@ export function OrdersPage() {
     } else setError(result.error.message);
     setLoading(false);
   }
+  useRealtime({ table: 'orders', onChange: () => void refresh() });
+
   onMount(() => {
     if (typeof window.matchMedia === 'function') {
       media = window.matchMedia('(max-width: 1023px)');

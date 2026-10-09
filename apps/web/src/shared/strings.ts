@@ -429,7 +429,7 @@ export const strings = {
     branding: 'Branding',
     staff: 'Staff',
     printer: 'Printer',
-    brandingSubtitle: 'Kustomisasi tampilan toko: logo, warna, dan font.',
+    brandingSubtitle: 'Kustomisasi tampilan toko: logo dan warna.',
     storeName: 'Nama toko',
     address: 'Alamat',
     phone: 'Telepon',

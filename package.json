@@ -17,7 +17,7 @@
     "db:start": "supabase start",
     "db:reset": "supabase db reset",
     "db:push": "supabase db push",
-    "db:types": "supabase gen types typescript --local > apps/web/src/shared/types/database.ts",
+    "db:types": "supabase gen types typescript --local > apps/web/src/shared/types/database.generated.ts && pnpm --filter @jokger/web exec prettier --write src/shared/types/database.generated.ts && mv apps/web/src/shared/types/database.generated.ts apps/web/src/shared/types/database.ts",
     "api:typecheck": "pnpm --filter @jokger/api exec tsc -p tsconfig.json --noEmit",
     "prepare": "husky install"
   },

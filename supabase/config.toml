@@ -10,7 +10,7 @@ max_rows = 1000
 [db]
 port = 54322
 shadow_port = 54320
-major_version = 15
+major_version = 17
 
 [db.seed]
 enabled = true
@@ -25,8 +25,12 @@ port = 54323
 
 [auth]
 enabled = true
-site_url = "http://localhost:5173"
-additional_redirect_urls = ["http://127.0.0.1:5173"]
+site_url = "https://jokger-staging.vercel.app"
+additional_redirect_urls = [
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+  "https://jokger-staging.vercel.app",
+]
 enable_signup = false
 minimum_password_length = 10
 

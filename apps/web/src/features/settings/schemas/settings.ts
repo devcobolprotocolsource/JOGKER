@@ -52,13 +52,6 @@ export const paperWidthOptions = [
   { value: '80', label: '80 mm' },
 ] as const;
 
-export const fontFamilyOptions = [
-  { value: 'Inter', label: 'Inter' },
-  { value: 'Poppins', label: 'Poppins' },
-  { value: 'Plus Jakarta Sans', label: 'Plus Jakarta Sans' },
-  { value: 'system-ui', label: 'System UI' },
-] as const;
-
 export const roleOptions = [
   { value: 'admin', label: 'Admin' },
   { value: 'super_admin', label: 'Super Admin' },

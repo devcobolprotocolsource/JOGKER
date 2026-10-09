@@ -1,8 +1,5 @@
 begin;
 
-create extension if not exists pgtap with schema extensions;
-grant usage on schema extensions to authenticated;
-grant execute on all functions in schema extensions to authenticated;
 set local search_path = public, extensions;
 select no_plan();
 

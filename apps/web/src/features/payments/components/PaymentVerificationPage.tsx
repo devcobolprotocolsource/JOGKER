@@ -2,7 +2,7 @@ import { For, Show, createSignal, onMount } from 'solid-js';
 import { Maximize, Download, RotateCw, Eye, X, Check } from 'lucide-solid';
 import { Button, Card, Modal, StatusBadge, Toast, Toolbar, IconButton } from '../../../shared/ui';
 import { strings } from '../../../shared/strings';
-import { useShortcut } from '../../../shared/hooks';
+import { useRealtime, useShortcut } from '../../../shared/hooks';
 import { loadPendingVerifications, verifyPayment, getPaymentProofUrl } from '../api/payments';
 
 export function PaymentVerificationPage() {
@@ -47,6 +47,8 @@ export function PaymentVerificationPage() {
       setLoading(false);
     }
   }
+
+  useRealtime({ table: 'payments', onChange: () => void loadQueue() });
 
   async function loadProof(_paymentId: string, path: string | null) {
     if (!path) {
